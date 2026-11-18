@@ -25,7 +25,8 @@
     "title": "SIZNI IFODALOVCHI USLUB.",
     "subtitle": "FABIANOning eng soʻnggi kolleksiyasini kashf eting.",
     "shopMen": "Erkaklar uchun",
-    "shopWomen": "Ayollar uchun"
+    "shopWomen": "Ayollar uchun",
+    "eyebrow": "Yangi kolleksiya"
   },
   "home": {
     "newArrivals": "Yangi kelganlar",
@@ -35,7 +36,12 @@
     "explore": "Koʻrish",
     "brandTitle": "OʻZLIGINGIZNI KIYING.",
     "brandText": "Moda — bu shunchaki kiyim emas. Bu oʻzingizni ifoda etish usuli.",
-    "emptyProducts": "Bu boʻlimda hozircha mahsulotlar yoʻq. Tez orada yangi kolleksiya qoʻshiladi."
+    "emptyProducts": "Bu boʻlimda hozircha mahsulotlar yoʻq. Tez orada yangi kolleksiya qoʻshiladi.",
+    "shopNow": "Koʻrish",
+    "menTitle": "Erkaklar",
+    "womenTitle": "Ayollar",
+    "menText": "Har kuni uchun zamonaviy klassika",
+    "womenText": "Nafislik va erkinlik uygʻunligi"
   },
   "product": {
     "new": "Yangi",

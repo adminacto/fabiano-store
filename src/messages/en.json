@@ -25,7 +25,8 @@
     "title": "STYLE THAT DEFINES YOU.",
     "subtitle": "Discover the latest collection by FABIANO.",
     "shopMen": "Shop Men",
-    "shopWomen": "Shop Women"
+    "shopWomen": "Shop Women",
+    "eyebrow": "New collection"
   },
   "home": {
     "newArrivals": "New Arrivals",
@@ -35,7 +36,12 @@
     "explore": "Explore",
     "brandTitle": "WEAR YOUR IDENTITY.",
     "brandText": "Fashion is more than clothing. It's how you express yourself.",
-    "emptyProducts": "No products here yet. A new collection is coming soon."
+    "emptyProducts": "No products here yet. A new collection is coming soon.",
+    "shopNow": "Shop now",
+    "menTitle": "Men",
+    "womenTitle": "Women",
+    "menText": "Modern classics for every day",
+    "womenText": "Where elegance meets ease"
   },
   "product": {
     "new": "New",
