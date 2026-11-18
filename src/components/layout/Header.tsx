@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname, type AppLocale } from "@/i18n/routing";
 import { Logo } from "./Logo";
 import { LocaleSwitcher } from "./LocaleSwitcher";
+import { CartCount } from "./CartCount";
 import { BagIcon, CloseIcon, HeartIcon, MenuIcon, SearchIcon, UserIcon } from "@/components/ui/icons";
 
 const NAV = [
@@ -100,8 +101,9 @@ export function Header({ overlay = false, logoUrl, enabledLocales }: HeaderProps
             <Link href="/wishlist" aria-label={t("wishlist")} className="hidden h-11 w-11 items-center justify-center md:flex">
               <HeartIcon />
             </Link>
-            <Link href="/cart" aria-label={t("cart")} className="-mr-2 flex h-11 w-11 items-center justify-center">
+            <Link href="/cart" aria-label={t("cart")} className="relative -mr-2 flex h-11 w-11 items-center justify-center">
               <BagIcon />
+              <CartCount />
             </Link>
           </div>
         </div>

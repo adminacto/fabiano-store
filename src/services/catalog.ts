@@ -18,7 +18,7 @@ export interface ProductCardData {
   colors: { code: string; hex: string; name: string }[];
 }
 
-const cardInclude = (locale: AppLocale) =>
+export const cardInclude = (locale: AppLocale) =>
   ({
     translations: { where: { locale }, select: { name: true } },
     images: { orderBy: { sortOrder: "asc" }, take: 2, select: { storageKey: true, width: true, height: true, alt: true } },
@@ -28,9 +28,9 @@ const cardInclude = (locale: AppLocale) =>
     },
   }) satisfies Prisma.ProductInclude;
 
-type CardRow = Prisma.ProductGetPayload<{ include: ReturnType<typeof cardInclude> }>;
+export type CardRow = Prisma.ProductGetPayload<{ include: ReturnType<typeof cardInclude> }>;
 
-function localized(json: Prisma.JsonValue | null, locale: AppLocale): string {
+export function localized(json: Prisma.JsonValue | null, locale: AppLocale): string {
   if (json && typeof json === "object" && !Array.isArray(json)) {
     const v = (json as Record<string, unknown>)[locale];
     if (typeof v === "string") return v;
@@ -38,7 +38,7 @@ function localized(json: Prisma.JsonValue | null, locale: AppLocale): string {
   return "";
 }
 
-function toCard(p: CardRow, locale: AppLocale): ProductCardData {
+export function toCard(p: CardRow, locale: AppLocale): ProductCardData {
   const name = p.translations[0]?.name ?? p.sku;
   const img = (i: CardRow["images"][number] | undefined) => {
     const url = mediaUrl(i?.storageKey);
