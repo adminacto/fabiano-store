@@ -1,0 +1,60 @@
+# Render Blueprint: сайт + PostgreSQL. Render → New → Blueprint → этот репозиторий.
+# Каждый пуш в main автоматически пересобирает и выкладывает сайт.
+#
+# Тариф free подходит для проверки: сайт засыпает без посетителей, бесплатная база удаляется через 30 дней.
+# Перед запуском магазина: plan: starter у сервиса и basic-256mb у базы.
+
+databases:
+  - name: fabiano-db
+    databaseName: fabiano
+    user: fabiano
+    plan: free
+    region: frankfurt
+    postgresMajorVersion: "16"
+
+services:
+  - type: web
+    name: fabiano-store
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeploy: true
+    buildCommand: npm install --include=dev && npm run build
+    # Схема БД + ограничения + справочники (всё идемпотентно), затем запуск
+    startCommand: npm run start:render
+    healthCheckPath: /uz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fabiano-db
+          property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: CART_COOKIE_SECRET
+        generateValue: true
+      # Заполняются позже в Render → Environment (сейчас пустые = функции выключены)
+      - key: APP_URL
+        sync: false
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_REGION
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+      - key: S3_PUBLIC_BASE_URL
+        sync: false
+      - key: SEED_ADMIN_EMAIL
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
+        sync: false
+      - key: FEATURE_TRY_ON
+        value: "false"

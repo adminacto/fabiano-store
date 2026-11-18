@@ -58,7 +58,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
 
   const genderPath = product.category.gender === "WOMEN" ? "/women" : "/men";
   const genderName = product.category.gender === "WOMEN" ? tn("women") : tn("men");
-  const base = process.env.APP_URL ?? "";
+  const base = (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL) ?? "";
 
   const jsonLd = {
     "@context": "https://schema.org",

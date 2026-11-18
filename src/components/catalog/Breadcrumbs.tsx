@@ -8,7 +8,7 @@ export interface Crumb {
 
 /** Хлебные крошки + JSON-LD BreadcrumbList для поисковиков. */
 export function Breadcrumbs({ items, locale, className = "" }: { items: Crumb[]; locale?: string; className?: string }) {
-  const base = process.env.APP_URL ?? "";
+  const base = (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL) ?? "";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",

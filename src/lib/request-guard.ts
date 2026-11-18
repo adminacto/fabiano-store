@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 export function assertSameOrigin(req: Request): NextResponse | null {
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return null;
   const origin = req.headers.get("origin");
-  const allowed = new URL(process.env.APP_URL ?? "http://localhost:3000").origin;
+  const allowed = new URL((process.env.APP_URL || process.env.RENDER_EXTERNAL_URL) ?? "http://localhost:3000").origin;
   const host = req.headers.get("host");
   const sameHost = origin && host && new URL(origin).host === host;
   if (origin && (origin === allowed || sameHost)) return null;

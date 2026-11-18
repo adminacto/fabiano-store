@@ -1,58 +1,47 @@
 -- FABIANO: ограничения целостности, которые Prisma не выражает декларативно.
--- Применяется как custom migration сразу после init-миграции Prisma:
---   npx prisma migrate dev --create-only --name constraints  → вставить этот файл → migrate dev
+-- Идемпотентно: безопасно выполнять при каждом деплое (prisma db execute) после `prisma db push`.
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE OR REPLACE FUNCTION pg_temp.fb_add_check(tbl text, name text, expr text) RETURNS void AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = name) THEN
+    EXECUTE format('ALTER TABLE %I ADD CONSTRAINT %I CHECK (%s)', tbl, name, expr);
+  END IF;
+END $$ LANGUAGE plpgsql;
 
 -- Остатки: никогда не уходят в минус, резерв не превышает остаток.
-ALTER TABLE "Inventory"
-  ADD CONSTRAINT inventory_quantity_nonneg CHECK ("quantity" >= 0),
-  ADD CONSTRAINT inventory_reserved_range  CHECK ("reserved" >= 0 AND "reserved" <= "quantity"),
-  ADD CONSTRAINT inventory_threshold_nonneg CHECK ("lowStockThreshold" >= 0);
+SELECT pg_temp.fb_add_check('Inventory', 'inventory_quantity_nonneg', '"quantity" >= 0');
+SELECT pg_temp.fb_add_check('Inventory', 'inventory_reserved_range', '"reserved" >= 0 AND "reserved" <= "quantity"');
+SELECT pg_temp.fb_add_check('Inventory', 'inventory_threshold_nonneg', '"lowStockThreshold" >= 0');
 
-ALTER TABLE "CartItem"
-  ADD CONSTRAINT cartitem_quantity_pos CHECK ("quantity" > 0 AND "quantity" <= 99);
+SELECT pg_temp.fb_add_check('CartItem', 'cartitem_quantity_pos', '"quantity" > 0 AND "quantity" <= 99');
 
-ALTER TABLE "OrderItem"
-  ADD CONSTRAINT orderitem_quantity_pos CHECK ("quantity" > 0),
-  ADD CONSTRAINT orderitem_price_nonneg CHECK ("unitPrice" >= 0),
-  ADD CONSTRAINT orderitem_line_total   CHECK ("lineTotal" = "unitPrice" * "quantity");
+SELECT pg_temp.fb_add_check('OrderItem', 'orderitem_quantity_pos', '"quantity" > 0');
+SELECT pg_temp.fb_add_check('OrderItem', 'orderitem_price_nonneg', '"unitPrice" >= 0');
+SELECT pg_temp.fb_add_check('OrderItem', 'orderitem_line_total', '"lineTotal" = "unitPrice" * "quantity"');
 
-ALTER TABLE "Order"
-  ADD CONSTRAINT order_totals_nonneg CHECK ("subtotal" >= 0 AND "discountTotal" >= 0 AND "shippingTotal" >= 0 AND "grandTotal" >= 0),
-  ADD CONSTRAINT order_grand_total   CHECK ("grandTotal" = "subtotal" - "discountTotal" + "shippingTotal"),
-  ADD CONSTRAINT order_discount_le_subtotal CHECK ("discountTotal" <= "subtotal");
+SELECT pg_temp.fb_add_check('Order', 'order_totals_nonneg', '"subtotal" >= 0 AND "discountTotal" >= 0 AND "shippingTotal" >= 0 AND "grandTotal" >= 0');
+SELECT pg_temp.fb_add_check('Order', 'order_grand_total', '"grandTotal" = "subtotal" - "discountTotal" + "shippingTotal"');
+SELECT pg_temp.fb_add_check('Order', 'order_discount_le_subtotal', '"discountTotal" <= "subtotal"');
 
-ALTER TABLE "Product"
-  ADD CONSTRAINT product_price_pos CHECK ("price" > 0),
-  ADD CONSTRAINT product_compare_gt_price CHECK ("compareAtPrice" IS NULL OR "compareAtPrice" > "price");
+SELECT pg_temp.fb_add_check('Product', 'product_price_pos', '"price" > 0');
+SELECT pg_temp.fb_add_check('Product', 'product_compare_gt_price', '"compareAtPrice" IS NULL OR "compareAtPrice" > "price"');
 
-ALTER TABLE "Coupon"
-  ADD CONSTRAINT coupon_value_pos CHECK ("value" > 0),
-  ADD CONSTRAINT coupon_percent_max CHECK ("type" <> 'PERCENT' OR "value" <= 100),
-  ADD CONSTRAINT coupon_code_upper CHECK ("code" = upper("code")),
-  ADD CONSTRAINT coupon_used_le_limit CHECK ("usageLimit" IS NULL OR "usedCount" <= "usageLimit");
+SELECT pg_temp.fb_add_check('Coupon', 'coupon_value_pos', '"value" > 0');
+SELECT pg_temp.fb_add_check('Coupon', 'coupon_percent_max', '"type" <> ''PERCENT'' OR "value" <= 100');
+SELECT pg_temp.fb_add_check('Coupon', 'coupon_code_upper', '"code" = upper("code")');
+SELECT pg_temp.fb_add_check('Coupon', 'coupon_used_le_limit', '"usageLimit" IS NULL OR "usedCount" <= "usageLimit"');
 
-ALTER TABLE "Review"
-  ADD CONSTRAINT review_rating_range CHECK ("rating" BETWEEN 1 AND 5);
-
-ALTER TABLE "Payment"
-  ADD CONSTRAINT payment_amount_pos CHECK ("amount" > 0);
-
-ALTER TABLE "User"
-  ADD CONSTRAINT user_phone_e164 CHECK ("phone" IS NULL OR "phone" ~ '^\+[1-9][0-9]{7,14}$');
+SELECT pg_temp.fb_add_check('Review', 'review_rating_range', '"rating" BETWEEN 1 AND 5');
+SELECT pg_temp.fb_add_check('Payment', 'payment_amount_pos', '"amount" > 0');
+SELECT pg_temp.fb_add_check('User', 'user_phone_e164', '"phone" IS NULL OR "phone" ~ ''^\+[1-9][0-9]{7,14}$''');
 
 -- Только один адрес по умолчанию на пользователя.
-CREATE UNIQUE INDEX address_one_default_per_user ON "Address" ("userId") WHERE "isDefault";
+CREATE UNIQUE INDEX IF NOT EXISTS address_one_default_per_user ON "Address" ("userId") WHERE "isDefault";
 
--- Полнотекстовый поиск по названию и описанию (simple — язык-независимый, подходит для uz-Latn).
-ALTER TABLE "ProductTranslation"
-  ADD COLUMN "searchVector" tsvector
-  GENERATED ALWAYS AS (
-    setweight(to_tsvector('simple', coalesce("name", '')), 'A') ||
-    setweight(to_tsvector('simple', coalesce("description", '')), 'B') ||
-    setweight(to_tsvector('simple', coalesce("material", '')), 'C')
-  ) STORED;
-CREATE INDEX producttranslation_search_idx ON "ProductTranslation" USING GIN ("searchVector");
+-- Поиск по частичному совпадению названия ("hud" → "hudi"): ускоряет ILIKE из каталога.
+CREATE INDEX IF NOT EXISTS producttranslation_name_trgm ON "ProductTranslation" USING GIN ("name" gin_trgm_ops);
 
--- Триграммы для поиска по частичному совпадению ("hood" → "hoodie").
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
-CREATE INDEX producttranslation_name_trgm ON "ProductTranslation" USING GIN ("name" gin_trgm_ops);
+-- Номера заказов FB-2026-000123.
+CREATE SEQUENCE IF NOT EXISTS order_number_seq START 1;
