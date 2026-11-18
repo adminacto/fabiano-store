@@ -1,3 +1,4 @@
+import { assertLocale } from "@/i18n/routing";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/layout/SiteHeader";
@@ -13,12 +14,14 @@ export const revalidate = 600;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
+  assertLocale(locale);
   const t = await getTranslations({ locale, namespace: "catalog" });
   return { title: t("collections"), alternates: { canonical: `/${locale}/collections` } };
 }
 
 export default async function CollectionsPage({ params }: Props) {
   const { locale } = await params;
+  assertLocale(locale);
   setRequestLocale(locale);
   const [t, th] = await Promise.all([getTranslations("catalog"), getTranslations("home")]);
   const items = (await getAllCollections(locale)).map((c) => ({ slug: c.slug, name: c.name, description: null, imageUrl: mediaUrl(c.imageKey) }));

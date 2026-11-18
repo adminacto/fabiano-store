@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { NewsletterForm } from "@/components/home/NewsletterForm";
+import { Logo } from "./Logo";
 
 interface FooterProps {
   socials?: { instagram?: string; telegram?: string } | null;
@@ -25,11 +26,11 @@ export async function Footer({ socials, contactPhone, contactEmail }: FooterProp
   ];
 
   return (
-    <footer className="mt-24 border-t border-line bg-paper md:mt-32">
+    <footer className="velvet on-dark mt-24 text-cream md:mt-32">
       <div className="page-x mx-auto grid max-w-[var(--container-page)] gap-12 py-16 md:grid-cols-12 md:py-20">
         <div className="md:col-span-5">
-          <p className="font-serif text-3xl tracking-[0.3em]">FABIANO</p>
-          <p className="mt-6 max-w-sm text-sm text-muted">{tn("text")}</p>
+          <Logo className="h-16 w-auto md:h-20" priority={false} />
+          <p className="mt-6 max-w-sm text-sm text-cream/70">{tn("text")}</p>
           <NewsletterForm compact source="footer" className="mt-6 max-w-sm" />
         </div>
 
@@ -37,7 +38,7 @@ export async function Footer({ socials, contactPhone, contactEmail }: FooterProp
         <FooterColumn title={t("company")} links={company} className="md:col-span-2" />
 
         <div className="md:col-span-2">
-          <h2 className="eyebrow font-sans text-muted">{t("follow")}</h2>
+          <h2 className="eyebrow font-sans text-champagne">{t("follow")}</h2>
           <ul className="mt-5 space-y-3 text-sm">
             {socials?.instagram && (
               <li><a href={socials.instagram} target="_blank" rel="noopener noreferrer" className="link-underline">Instagram</a></li>
@@ -54,8 +55,8 @@ export async function Footer({ socials, contactPhone, contactEmail }: FooterProp
           </ul>
         </div>
       </div>
-      <div className="border-t border-line">
-        <p className="page-x mx-auto max-w-[var(--container-page)] py-6 text-xs text-muted">
+      <div className="border-t border-white/10">
+        <p className="page-x mx-auto max-w-[var(--container-page)] py-6 text-xs text-cream/55">
           © {year} FABIANO. {t("rights")}
         </p>
       </div>
@@ -66,7 +67,7 @@ export async function Footer({ socials, contactPhone, contactEmail }: FooterProp
 function FooterColumn({ title, links, className }: { title: string; links: { href: string; label: string }[]; className?: string }) {
   return (
     <div className={className}>
-      <h2 className="eyebrow font-sans text-muted">{title}</h2>
+      <h2 className="eyebrow font-sans text-champagne">{title}</h2>
       <ul className="mt-5 space-y-3 text-sm">
         {links.map((l) => (
           <li key={l.href}>

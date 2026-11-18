@@ -25,7 +25,7 @@ export function NewsletterForm({
       <input type="hidden" name="source" value={source} />
       <input type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
       <label htmlFor={id} className="sr-only">{t("placeholder")}</label>
-      <div className={`flex items-center border-b ${compact ? "border-ink/30" : "border-current"}`}>
+      <div className={`flex items-center border-b ${compact ? "border-current/40" : "border-current"}`}>
         <input
           id={id}
           name="email"
@@ -48,7 +48,7 @@ export function NewsletterForm({
           {compact ? <ArrowRightIcon width={20} height={20} /> : t("submit")}
         </button>
       </div>
-      <p id={`${id}-msg`} role="status" aria-live="polite" className={`mt-3 min-h-5 text-xs ${done ? "" : "text-danger"}`}>
+      <p id={`${id}-msg`} role="status" aria-live="polite" className={`mt-3 min-h-5 text-xs ${done ? "" : "text-[#f2a7a7]"}`}>
         {message}
       </p>
     </form>

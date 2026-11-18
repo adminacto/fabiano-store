@@ -1,16 +1,31 @@
+import Image from "next/image";
 import { Link } from "@/i18n/routing";
+import logoCream from "../../../public/brand/logo-cream.png";
+import logoWine from "../../../public/brand/logo-wine.png";
 
 /**
- * Текстовый wordmark. Если в StoreSettings загружен логотип (SVG/PNG), Header передаёт его через logoUrl.
+ * Фирменный логотип FABIANO (вышивка с иглой), вырезанный на прозрачный фон.
+ * cream — для бордовых фонов (шапка, подвал, первый экран), wine — для светлых.
+ * Загруженный в Dashboard логотип (logoUrl) заменяет встроенный.
  */
-export function Logo({ logoUrl, className = "" }: { logoUrl?: string | null; className?: string }) {
+export function Logo({
+  logoUrl,
+  tone = "cream",
+  className = "h-11 w-auto md:h-[3.25rem]",
+  priority = true,
+}: {
+  logoUrl?: string | null;
+  tone?: "cream" | "wine";
+  className?: string;
+  priority?: boolean;
+}) {
   return (
-    <Link href="/" aria-label="FABIANO" className={`inline-flex items-center ${className}`}>
+    <Link href="/" aria-label="FABIANO" className="inline-flex shrink-0 items-center">
       {logoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element -- SVG-логотип из настроек, размеры задаются CSS
-        <img src={logoUrl} alt="FABIANO" className="h-6 w-auto md:h-7" />
+        // eslint-disable-next-line @next/next/no-img-element -- логотип из настроек магазина, размер задаётся CSS
+        <img src={logoUrl} alt="FABIANO" className={className} />
       ) : (
-        <span className="font-serif text-[1.65rem] leading-none tracking-[0.32em] md:text-[1.85rem]">FABIANO</span>
+        <Image src={tone === "cream" ? logoCream : logoWine} alt="FABIANO" priority={priority} className={className} sizes="240px" />
       )}
     </Link>
   );

@@ -1,3 +1,4 @@
+import { assertLocale } from "@/i18n/routing";
 /**
  * Общая логика страниц каталога. Маршруты (men, women, catalog, search, collections) — тонкие обёртки.
  */
@@ -31,6 +32,7 @@ function seo(locale: string, path: string, f: CatalogFilters, title: string, des
 // ── Men / Women ─────────────────────────────────────────
 
 export async function genderMetadata(gender: GenderFilter, locale: AppLocale, category: string | undefined, sp: Awaited<SearchParams>): Promise<Metadata> {
+  assertLocale(locale);
   const tn = await getTranslations({ locale, namespace: "nav" });
   const f = parseCatalogFilters(sp, { gender, category });
   const base = GENDER_PATH[gender];
@@ -41,6 +43,7 @@ export async function genderMetadata(gender: GenderFilter, locale: AppLocale, ca
 }
 
 export async function GenderCatalogPage({ gender, locale, category, searchParams }: { gender: GenderFilter; locale: AppLocale; category?: string; searchParams: Awaited<SearchParams> }) {
+  assertLocale(locale);
   setRequestLocale(locale);
   const [t, tn] = await Promise.all([getTranslations("catalog"), getTranslations("nav")]);
   const base = GENDER_PATH[gender];
@@ -76,11 +79,13 @@ export async function GenderCatalogPage({ gender, locale, category, searchParams
 // ── Весь каталог (+ new/sale из меню) ───────────────────
 
 export async function allMetadata(locale: AppLocale, sp: Awaited<SearchParams>): Promise<Metadata> {
+  assertLocale(locale);
   const t = await getTranslations({ locale, namespace: "catalog" });
   return seo(locale, "/catalog", parseCatalogFilters(sp), t("all"));
 }
 
 export async function AllCatalogPage({ locale, searchParams }: { locale: AppLocale; searchParams: Awaited<SearchParams> }) {
+  assertLocale(locale);
   setRequestLocale(locale);
   const t = await getTranslations("catalog");
   const tn = await getTranslations("nav");
@@ -98,12 +103,14 @@ export async function AllCatalogPage({ locale, searchParams }: { locale: AppLoca
 // ── Коллекция ──────────────────────────────────────────
 
 export async function collectionMetadata(locale: AppLocale, slug: string, sp: Awaited<SearchParams>): Promise<Metadata> {
+  assertLocale(locale);
   const meta = await getCollectionMeta(slug, locale);
   if (!meta) return {};
   return seo(locale, `/collections/${slug}`, parseCatalogFilters(sp, { collection: slug }), meta.name, meta.description);
 }
 
 export async function CollectionPage({ locale, slug, searchParams }: { locale: AppLocale; slug: string; searchParams: Awaited<SearchParams> }) {
+  assertLocale(locale);
   setRequestLocale(locale);
   const t = await getTranslations("catalog");
   const meta = await getCollectionMeta(slug, locale);

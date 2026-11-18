@@ -7,7 +7,7 @@ import { ProductDetail } from "@/components/product/ProductDetail";
 import { ProductRail } from "@/components/home/ProductRail";
 import { getProductBySlug, getRelatedProducts, isTryOnEnabledFor } from "@/services/product";
 import { totalAvailable } from "@/features/product/variants";
-import { locales, type AppLocale } from "@/i18n/routing";
+import { locales, type AppLocale, assertLocale } from "@/i18n/routing";
 
 type Props = {
   params: Promise<{ locale: AppLocale; slug: string }>;
@@ -18,6 +18,7 @@ export const revalidate = 120;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
+  assertLocale(locale);
   const p = await getProductBySlug(slug, locale);
   if (!p) return {};
   const title = p.metaTitle ?? p.name;
@@ -43,6 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params, searchParams }: Props) {
   const { locale, slug } = await params;
+  assertLocale(locale);
   setRequestLocale(locale);
   const product = await getProductBySlug(slug, locale);
   if (!product) notFound();

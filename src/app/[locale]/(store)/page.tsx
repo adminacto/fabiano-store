@@ -1,3 +1,4 @@
+import { assertLocale } from "@/i18n/routing";
 import { Suspense } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/layout/SiteHeader";
@@ -14,6 +15,7 @@ export const revalidate = 300;
 
 export default async function HomePage({ params }: { params: Promise<{ locale: AppLocale }> }) {
   const { locale } = await params;
+  assertLocale(locale);
   setRequestLocale(locale);
   const t = await getTranslations("home");
   const tn = await getTranslations("newsletter");
@@ -21,7 +23,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: A
 
   return (
     <>
-      <SiteHeader overlay={Boolean(hero?.imageUrl)} />
+      <SiteHeader overlay />
       <main id="main">
         <Hero data={hero} />
 
@@ -40,10 +42,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: A
         <BrandSection title={t("brandTitle")} text={t("brandText")} />
 
         <section className="page-x mx-auto mt-24 max-w-[var(--container-page)] md:mt-32">
-          <div className="grid gap-8 bg-ink px-6 py-14 text-paper md:grid-cols-2 md:items-end md:px-14 md:py-20">
+          <div className="velvet on-dark grid gap-8 px-6 py-14 text-cream md:grid-cols-2 md:items-end md:px-14 md:py-20">
             <div>
               <h2 className="text-4xl md:text-5xl">{tn("title")}</h2>
-              <p className="mt-4 max-w-md text-sm text-paper/70">{tn("text")}</p>
+              <p className="mt-4 max-w-md text-sm text-cream/70">{tn("text")}</p>
             </div>
             <NewsletterForm source="home" />
           </div>

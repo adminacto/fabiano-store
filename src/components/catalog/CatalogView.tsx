@@ -101,7 +101,7 @@ function Chip({ href, active, children }: { href: string; active: boolean; child
       href={href}
       aria-current={active ? "page" : undefined}
       className={`flex h-10 items-center whitespace-nowrap border px-4 text-xs font-medium tracking-wide transition-colors ${
-        active ? "border-ink bg-ink text-paper" : "border-line hover:border-ink"
+        active ? "border-wine bg-wine text-cream" : "border-line hover:border-ink"
       }`}
     >
       {children}

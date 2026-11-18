@@ -1,3 +1,4 @@
+import { assertLocale } from "@/i18n/routing";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/layout/SiteHeader";
@@ -11,12 +12,14 @@ type Props = { params: Promise<{ locale: AppLocale }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
+  assertLocale(locale);
   const t = await getTranslations({ locale, namespace: "cart" });
   return { title: t("title"), robots: { index: false, follow: false } };
 }
 
 export default async function CartPage({ params }: Props) {
   const { locale } = await params;
+  assertLocale(locale);
   setRequestLocale(locale);
   const cart = await getCartView(locale);
   return (
