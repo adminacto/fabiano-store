@@ -2,7 +2,7 @@
 
 Премиальный интернет-магазин одежды FABIANO: Next.js + PostgreSQL + Prisma.
 
-**Текущий статус:** PHASE 1 (архитектура и схема БД). План и решения — [docs/PHASE-1-ARCHITECTURE.md](docs/PHASE-1-ARCHITECTURE.md).
+**Текущий статус:** PHASE 1 готова, PHASE 2 в работе. Подробно — [docs/PROGRESS.md](docs/PROGRESS.md).
 
 ## Локальный запуск (по мере готовности фаз)
 

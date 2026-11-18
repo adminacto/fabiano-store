@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "title": "FABIANO — zamonaviy premium kiyimlar",
+    "description": "FABIANO rasmiy onlayn doʻkoni: erkaklar va ayollar uchun yangi kolleksiyalar, Oʻzbekiston boʻylab yetkazib berish."
+  },
+  "nav": {
+    "newArrivals": "Yangi kelganlar",
+    "men": "Erkaklar",
+    "women": "Ayollar",
+    "collections": "Kolleksiyalar",
+    "sale": "Chegirmalar",
+    "search": "Qidiruv",
+    "account": "Hisob",
+    "wishlist": "Sevimlilar",
+    "cart": "Savat",
+    "menu": "Menyu",
+    "close": "Yopish",
+    "language": "Til",
+    "skipToContent": "Asosiy kontentga oʻtish"
+  },
+  "hero": {
+    "title": "SIZNI IFODALOVCHI USLUB.",
+    "subtitle": "FABIANOning eng soʻnggi kolleksiyasini kashf eting.",
+    "shopMen": "Erkaklar uchun",
+    "shopWomen": "Ayollar uchun"
+  },
+  "home": {
+    "newArrivals": "Yangi kelganlar",
+    "bestSellers": "Eng koʻp sotilganlar",
+    "viewAll": "Barchasini koʻrish",
+    "collections": "Kolleksiyalar",
+    "explore": "Koʻrish",
+    "brandTitle": "OʻZLIGINGIZNI KIYING.",
+    "brandText": "Moda — bu shunchaki kiyim emas. Bu oʻzingizni ifoda etish usuli.",
+    "emptyProducts": "Bu boʻlimda hozircha mahsulotlar yoʻq. Tez orada yangi kolleksiya qoʻshiladi."
+  },
+  "product": {
+    "new": "Yangi",
+    "addToWishlist": "Sevimlilarga qoʻshish",
+    "removeFromWishlist": "Sevimlilardan olib tashlash",
+    "quickAdd": "Tez qoʻshish",
+    "quickView": "Tez koʻrish",
+    "colors": "{count, plural, one {# rang} other {# rang}}",
+    "soldOut": "Tugagan"
+  },
+  "newsletter": {
+    "title": "Yangiliklardan birinchi boʻlib xabardor boʻling",
+    "text": "Yangi kolleksiyalar, yopiq savdolar va maxsus takliflar — faqat obunachilar uchun.",
+    "placeholder": "Elektron pochta",
+    "submit": "Obuna boʻlish",
+    "success": "Rahmat! Siz obuna boʻldingiz.",
+    "already": "Bu manzil allaqachon obuna boʻlgan.",
+    "invalid": "Toʻgʻri elektron pochta manzilini kiriting.",
+    "rateLimited": "Juda koʻp urinish. Birozdan soʻng qayta urinib koʻring.",
+    "error": "Xatolik yuz berdi. Qayta urinib koʻring."
+  },
+  "footer": {
+    "about": "FABIANO haqida",
+    "contact": "Aloqa",
+    "faq": "Savol-javob",
+    "shipping": "Yetkazib berish va qaytarish",
+    "privacy": "Maxfiylik siyosati",
+    "terms": "Foydalanish shartlari",
+    "help": "Yordam",
+    "company": "Kompaniya",
+    "follow": "Bizni kuzating",
+    "rights": "Barcha huquqlar himoyalangan."
+  },
+  "state": {
+    "loading": "Yuklanmoqda…",
+    "errorTitle": "Nimadir notoʻgʻri ketdi",
+    "errorText": "Sahifani yuklab boʻlmadi. Qayta urinib koʻring.",
+    "retry": "Qayta urinish",
+    "notFoundTitle": "Sahifa topilmadi",
+    "notFoundText": "Siz qidirayotgan sahifa mavjud emas yoki koʻchirilgan.",
+    "backHome": "Bosh sahifaga"
+  }
+}

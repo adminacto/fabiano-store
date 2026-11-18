@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "title": "FABIANO — Modern Premium Fashion",
+    "description": "The official FABIANO online store: new collections for men and women, delivered across Uzbekistan."
+  },
+  "nav": {
+    "newArrivals": "New Arrivals",
+    "men": "Men",
+    "women": "Women",
+    "collections": "Collections",
+    "sale": "Sale",
+    "search": "Search",
+    "account": "Account",
+    "wishlist": "Wishlist",
+    "cart": "Cart",
+    "menu": "Menu",
+    "close": "Close",
+    "language": "Language",
+    "skipToContent": "Skip to content"
+  },
+  "hero": {
+    "title": "STYLE THAT DEFINES YOU.",
+    "subtitle": "Discover the latest collection by FABIANO.",
+    "shopMen": "Shop Men",
+    "shopWomen": "Shop Women"
+  },
+  "home": {
+    "newArrivals": "New Arrivals",
+    "bestSellers": "Best Sellers",
+    "viewAll": "View all",
+    "collections": "Collections",
+    "explore": "Explore",
+    "brandTitle": "WEAR YOUR IDENTITY.",
+    "brandText": "Fashion is more than clothing. It's how you express yourself.",
+    "emptyProducts": "No products here yet. A new collection is coming soon."
+  },
+  "product": {
+    "new": "New",
+    "addToWishlist": "Add to wishlist",
+    "removeFromWishlist": "Remove from wishlist",
+    "quickAdd": "Quick add",
+    "quickView": "Quick view",
+    "colors": "{count, plural, one {# colour} other {# colours}}",
+    "soldOut": "Sold out"
+  },
+  "newsletter": {
+    "title": "Be the first to know",
+    "text": "New collections, private sales and special offers — for subscribers only.",
+    "placeholder": "Email address",
+    "submit": "Subscribe",
+    "success": "Thank you! You're subscribed.",
+    "already": "This address is already subscribed.",
+    "invalid": "Please enter a valid email address.",
+    "rateLimited": "Too many attempts. Please try again shortly.",
+    "error": "Something went wrong. Please try again."
+  },
+  "footer": {
+    "about": "About FABIANO",
+    "contact": "Contact",
+    "faq": "FAQ",
+    "shipping": "Shipping & Returns",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "help": "Help",
+    "company": "Company",
+    "follow": "Follow us",
+    "rights": "All rights reserved."
+  },
+  "state": {
+    "loading": "Loading…",
+    "errorTitle": "Something went wrong",
+    "errorText": "We couldn't load this page. Please try again.",
+    "retry": "Try again",
+    "notFoundTitle": "Page not found",
+    "notFoundText": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to home"
+  }
+}
