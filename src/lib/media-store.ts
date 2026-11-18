@@ -36,7 +36,7 @@ export async function storeImage(file: File): Promise<{ storageKey: string; widt
     .toBuffer({ resolveWithObject: true });
 
   const row = await prisma.mediaFile.create({
-    data: { mime: "image/webp", width: info.width, height: info.height, size: data.length, data },
+    data: { mime: "image/webp", width: info.width, height: info.height, size: data.length, data: new Uint8Array(data) },
     select: { id: true },
   });
   return { storageKey: `db:${row.id}`, width: info.width, height: info.height };
