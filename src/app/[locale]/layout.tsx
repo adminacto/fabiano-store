@@ -34,7 +34,7 @@ export const viewport: Viewport = {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
-  const base = process.env.APP_URL ?? "http://localhost:3000";
+  const base = (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL) ?? "http://localhost:3000";
   return {
     metadataBase: new URL(base),
     title: { default: t("title"), template: "%s — FABIANO" },

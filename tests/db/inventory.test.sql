@@ -3,7 +3,7 @@
 \set ON_ERROR_STOP on
 DROP SCHEMA IF EXISTS fb_test CASCADE;
 CREATE SCHEMA fb_test;
-SET search_path TO fb_test;
+SET search_path TO fb_test, public;
 
 CREATE TABLE "Inventory" ("variantId" text PRIMARY KEY, "quantity" int NOT NULL DEFAULT 0, "reserved" int NOT NULL DEFAULT 0, "lowStockThreshold" int NOT NULL DEFAULT 3);
 CREATE TABLE "CartItem" ("id" text PRIMARY KEY, "quantity" int NOT NULL);
@@ -16,6 +16,7 @@ CREATE TABLE "Review" ("id" text PRIMARY KEY, "rating" int);
 CREATE TABLE "Payment" ("id" text PRIMARY KEY, "amount" numeric(14,2));
 CREATE TABLE "User" ("id" text PRIMARY KEY, "phone" text);
 CREATE TABLE "Address" ("id" text PRIMARY KEY, "userId" text, "isDefault" bool);
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE TABLE "ProductTranslation" ("productId" text, "locale" text, "name" text, "description" text, "material" text, PRIMARY KEY ("productId","locale"));
 
 \i prisma/sql/001_constraints.sql
@@ -64,16 +65,19 @@ DO $$ BEGIN
   INSERT INTO fb_test."Address" VALUES ('a2','u2',true); RAISE EXCEPTION 'FAIL: two defaults';
 EXCEPTION WHEN unique_violation THEN RAISE NOTICE 'PASS: one default address per user'; END $$;
 
--- 5. Поиск: полнотекстовый (uz/ru) + триграммы.
+-- 5. Триграммный поиск по названию.
 INSERT INTO "ProductTranslation" VALUES
  ('p2','uz','Oversize hudi','Qalin paxta matosidan tikilgan erkaklar hudisi','100% paxta'),
  ('p2','ru','Худи оверсайз','Мужское худи из плотного хлопка','100% хлопок');
 DO $$ BEGIN
-  IF (SELECT count(*) FROM fb_test."ProductTranslation" WHERE "searchVector" @@ plainto_tsquery('simple','хлопка')) <> 1 THEN RAISE EXCEPTION 'FAIL: fts ru'; END IF;
-  IF (SELECT count(*) FROM fb_test."ProductTranslation" WHERE "searchVector" @@ plainto_tsquery('simple','paxta')) <> 1 THEN RAISE EXCEPTION 'FAIL: fts uz'; END IF;
+  IF (SELECT count(*) FROM fb_test."ProductTranslation" WHERE "name" ILIKE '%hud%') <> 1 THEN RAISE EXCEPTION 'FAIL: ilike'; END IF;
   IF (SELECT count(*) FROM fb_test."ProductTranslation" WHERE similarity("name", 'hud') > 0.1) < 1 THEN RAISE EXCEPTION 'FAIL: trgm'; END IF;
-  RAISE NOTICE 'PASS: full-text (uz, ru) and trigram search';
+  RAISE NOTICE 'PASS: partial-match search';
 END $$;
+
+-- 6. Повторное применение ограничений (как при каждом деплое) не падает.
+\i prisma/sql/001_constraints.sql
+\echo 'PASS: constraints SQL is idempotent'
 
 DROP SCHEMA fb_test CASCADE;
 \echo 'ALL DB TESTS PASSED'

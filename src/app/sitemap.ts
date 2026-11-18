@@ -6,7 +6,7 @@ export const revalidate = 3600;
 
 /** Товары, категории, коллекции и статические разделы во всех языках с hreflang-альтернативами. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.APP_URL ?? "http://localhost:3000";
+  const base = (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL) ?? "http://localhost:3000";
   const entry = (path: string, lastModified?: Date, priority = 0.6): MetadataRoute.Sitemap[number] => ({
     url: `${base}/${locales[0]}${path}`,
     lastModified,
