@@ -20,9 +20,10 @@ services:
     region: frankfurt
     branch: main
     autoDeploy: true
-    buildCommand: npm install --include=dev && npm run build
-    # Схема БД + ограничения + справочники (всё идемпотентно), затем запуск
-    startCommand: npm run start:render
+    # Схема БД + ограничения + справочники (всё идемпотентно) ДО сборки:
+    # Next.js пререндерит главную и каталог при сборке и обращается к базе.
+    buildCommand: npm install --include=dev && npm run db:setup && npm run build
+    startCommand: npm start
     healthCheckPath: /uz
     envVars:
       - key: NODE_VERSION
