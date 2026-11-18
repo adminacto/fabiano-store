@@ -1,0 +1,708 @@
+// FABIANO — Prisma schema (PHASE 1)
+// Источник истины для структуры БД. Миграции: `npx prisma migrate dev`.
+// Деньги: Decimal(14,2) + код валюты. UZS по умолчанию. Конвертация в тийины — только в платёжных адаптерах.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────── Enums ─────────────────────────
+
+enum Locale {
+  uz
+  ru
+  en
+}
+
+enum Gender {
+  MEN
+  WOMEN
+  UNISEX
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING      // ожидает оплаты
+  AUTHORIZED   // средства заблокированы (если провайдер поддерживает)
+  PAID         // подтверждено сервером провайдера
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  PAYME
+  CLICK
+  CASH_ON_DELIVERY
+}
+
+enum TransactionKind {
+  CREATE
+  PERFORM
+  CANCEL
+  REFUND
+  WEBHOOK
+  STATUS_CHECK
+}
+
+enum DeliveryType {
+  COURIER
+  PICKUP
+  OTHER
+}
+
+enum ShipmentStatus {
+  PENDING
+  PACKED
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
+}
+
+enum CouponType {
+  PERCENT
+  FIXED
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ───────────────────────── Users & RBAC ─────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String?   @unique
+  phone         String?   @unique // E.164, для UZ: +998XXXXXXXXX
+  passwordHash  String?   // argon2id; null для гостей, созданных при checkout
+  firstName     String?
+  lastName      String?
+  locale        Locale    @default(uz)
+  emailVerified DateTime?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  roles               UserRole[]
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+  addresses           Address[]
+  cart                Cart?
+  wishlist            Wishlist?
+  orders              Order[]
+  reviews             Review[]
+  couponUsages        CouponUsage[]
+  orderStatusChanges  OrderStatusHistory[]
+  auditLogs           AuditLog[]
+
+  @@index([createdAt])
+}
+
+model Role {
+  id          String     @id @default(cuid())
+  name        String     @unique // customer, admin, manager, content_editor
+  permissions String[]   // "products:write", "orders:read", ...
+  users       UserRole[]
+}
+
+model UserRole {
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@id([userId, roleId])
+}
+
+// Серверные сессии: в cookie — случайный токен, в БД — только его SHA-256.
+model Session {
+  id          String   @id @default(cuid())
+  tokenHash   String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent   String?
+  ipAddress   String?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String?  // "Дом", "Работа"
+  firstName  String
+  lastName   String
+  phone      String
+  region     String   // Область / г. Ташкент
+  district   String   // Город или район
+  street     String
+  house      String
+  apartment  String?
+  comment    String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ───────────────────────── Catalog ─────────────────────────
+
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   // ЧПУ, уникален в рамках gender
+  gender    Gender
+  parentId  String?
+  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children  Category[] @relation("CategoryTree")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  translations CategoryTranslation[]
+  products     Product[]
+
+  @@unique([gender, slug])
+}
+
+model CategoryTranslation {
+  categoryId      String
+  locale          Locale
+  name            String
+  description     String?
+  metaTitle       String?
+  metaDescription String?
+  category        Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, locale])
+}
+
+model Collection {
+  id         String   @id @default(cuid())
+  slug       String   @unique // mens, womens, essentials, streetwear, premium
+  imageUrl   String?
+  isFeatured Boolean  @default(false) // показывать на главной
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  translations CollectionTranslation[]
+  products     ProductCollection[]
+}
+
+model CollectionTranslation {
+  collectionId String
+  locale       Locale
+  name         String
+  description  String?
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, locale])
+}
+
+model Size {
+  id        String  @id @default(cuid())
+  code      String  @unique // XS, S, M, L, XL, XXL, 40, 41...
+  sortOrder Int     @default(0)
+  variants  ProductVariant[]
+}
+
+model Color {
+  id        String  @id @default(cuid())
+  code      String  @unique // black, sand, olive
+  hex       String  // #171717
+  names     Json    // {"uz":"Qora","ru":"Чёрный","en":"Black"}
+  variants  ProductVariant[]
+  images    ProductImage[]
+}
+
+model Product {
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  sku           String        @unique // базовый артикул модели
+  brand         String        @default("FABIANO")
+  gender        Gender
+  categoryId    String
+  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  status        ProductStatus @default(DRAFT)
+  price         Decimal       @db.Decimal(14, 2)
+  compareAtPrice Decimal?     @db.Decimal(14, 2) // старая цена (скидка), должна быть > price
+  currency      String        @default("UZS") @db.Char(3)
+  isNew         Boolean       @default(false)
+  isFeatured    Boolean       @default(false)
+  salesCount    Int           @default(0) // денормализация для Best Selling, обновляется при оплате
+  sizeGuideId   String?
+  sizeGuide     SizeGuide?    @relation(fields: [sizeGuideId], references: [id], onDelete: SetNull)
+  tryOnEnabled  Boolean       @default(false) // товар подготовлен для Fabiano Live Try-On
+  publishedAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  translations ProductTranslation[]
+  images       ProductImage[]
+  variants     ProductVariant[]
+  collections  ProductCollection[]
+  reviews      Review[]
+  wishlistItems WishlistItem[]
+
+  @@index([status, gender, categoryId])
+  @@index([status, publishedAt])
+  @@index([status, salesCount])
+  @@index([price])
+}
+
+model ProductTranslation {
+  productId       String
+  locale          Locale
+  name            String
+  description     String
+  material        String?
+  care            String?
+  metaTitle       String?
+  metaDescription String?
+  // tsvector для полнотекстового поиска добавляется SQL-миграцией (generated column + GIN)
+  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([productId, locale])
+}
+
+model ProductCollection {
+  productId    String
+  collectionId String
+  sortOrder    Int        @default(0)
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([productId, collectionId])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorId   String?  // привязка к цвету → галерея меняется при выборе цвета
+  color     Color?   @relation(fields: [colorId], references: [id], onDelete: SetNull)
+  storageKey String  // ключ в S3; URL строится на сервере
+  width     Int
+  height    Int
+  alt       Json?    // {"uz": "...", "ru": "...", "en": "..."}
+  sortOrder Int      @default(0)
+  isTryOnAsset Boolean @default(false) // изображение, передаваемое в Try-On SDK
+  createdAt DateTime @default(now())
+
+  @@index([productId, colorId, sortOrder])
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorId   String
+  color     Color    @relation(fields: [colorId], references: [id], onDelete: Restrict)
+  sizeId    String
+  size      Size     @relation(fields: [sizeId], references: [id], onDelete: Restrict)
+  sku       String   @unique // артикул варианта: FB-TS-001-BLK-M
+  priceOverride Decimal? @db.Decimal(14, 2)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  inventory  Inventory?
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@unique([productId, colorId, sizeId])
+  @@index([colorId])
+  @@index([sizeId])
+}
+
+// Остатки. CHECK-ограничения (quantity >= 0, reserved BETWEEN 0 AND quantity) — в SQL-миграции.
+model Inventory {
+  variantId         String         @id
+  variant           ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  quantity          Int            @default(0) // физически на складе
+  reserved          Int            @default(0) // зарезервировано неоплаченными заказами
+  lowStockThreshold Int            @default(3)
+  updatedAt         DateTime       @updatedAt
+}
+
+model SizeGuide {
+  id       String    @id @default(cuid())
+  name     String
+  table    Json      // {columns:["Size","Chest","Waist"], rows:[["S","92","78"],...], unit:"cm"}
+  products Product[]
+}
+
+// ───────────────────────── Cart & Wishlist ─────────────────────────
+
+// Гостевая корзина: id хранится в подписанной httpOnly cookie; после входа — слияние в корзину пользователя.
+model Cart {
+  id         String     @id @default(cuid())
+  userId     String?    @unique
+  user       User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  couponCode String?
+  expiresAt  DateTime?  // для гостевых корзин
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  items      CartItem[]
+
+  @@index([expiresAt])
+}
+
+model CartItem {
+  id        String         @id @default(cuid())
+  cartId    String
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  quantity  Int            // CHECK quantity > 0 в SQL-миграции
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@unique([cartId, variantId])
+}
+
+model Wishlist {
+  id        String         @id @default(cuid())
+  userId    String         @unique
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     WishlistItem[]
+  createdAt DateTime       @default(now())
+}
+
+model WishlistItem {
+  wishlistId String
+  productId  String
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@id([wishlistId, productId])
+}
+
+// ───────────────────────── Orders ─────────────────────────
+
+model Order {
+  id            String        @id @default(cuid())
+  number        String        @unique // FB-2026-000123, человекочитаемый
+  userId        String?       // null — гостевой заказ
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  currency      String        @default("UZS") @db.Char(3)
+  locale        Locale        @default(uz)
+
+  subtotal      Decimal       @db.Decimal(14, 2)
+  discountTotal Decimal       @default(0) @db.Decimal(14, 2)
+  shippingTotal Decimal       @default(0) @db.Decimal(14, 2)
+  grandTotal    Decimal       @db.Decimal(14, 2)
+
+  // Снимок контактов и адреса на момент заказа (не ссылка на Address)
+  email         String?
+  phone         String
+  firstName     String
+  lastName      String
+  shippingAddress Json        // {region, district, street, house, apartment}
+  customerComment String?
+
+  deliveryMethodId String?
+  deliveryMethod   DeliveryMethod? @relation(fields: [deliveryMethodId], references: [id], onDelete: SetNull)
+  deliverySnapshot Json        // {type, name, price} на момент заказа
+
+  couponCode    String?
+  guestAccessTokenHash String? // для просмотра гостевого заказа по ссылке
+  reservationExpiresAt DateTime? // резерв остатков для неоплаченных онлайн-заказов
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  items         OrderItem[]
+  payments      Payment[]
+  shipments     Shipment[]
+  statusHistory OrderStatusHistory[]
+  couponUsage   CouponUsage?
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([paymentStatus])
+  @@index([createdAt])
+}
+
+// Снимок товара: последующее редактирование Product не меняет историю.
+model OrderItem {
+  id          String          @id @default(cuid())
+  orderId     String
+  order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId   String?
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  productId   String?         // для повторного заказа и аналитики; без FK, товар может быть удалён
+  productName String
+  sku         String
+  sizeCode    String
+  colorName   String
+  colorHex    String?
+  imageKey    String?
+  unitPrice   Decimal         @db.Decimal(14, 2)
+  quantity    Int
+  lineTotal   Decimal         @db.Decimal(14, 2)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model OrderStatusHistory {
+  id         String       @id @default(cuid())
+  orderId    String
+  order      Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromStatus OrderStatus?
+  toStatus   OrderStatus
+  note       String?
+  changedById String?
+  changedBy  User?        @relation(fields: [changedById], references: [id], onDelete: SetNull)
+  createdAt  DateTime     @default(now())
+
+  @@index([orderId, createdAt])
+}
+
+// ───────────────────────── Payments ─────────────────────────
+
+model Payment {
+  id         String          @id @default(cuid())
+  orderId    String
+  order      Order           @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  provider   PaymentProvider
+  status     PaymentStatus   @default(PENDING)
+  amount     Decimal         @db.Decimal(14, 2)
+  currency   String          @db.Char(3)
+  providerPaymentId String?  // id транзакции у Payme/Click
+  paidAt     DateTime?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  transactions PaymentTransaction[]
+
+  @@unique([provider, providerPaymentId])
+  @@index([orderId])
+}
+
+// Журнал всех взаимодействий с провайдером (идемпотентность webhook через idempotencyKey).
+model PaymentTransaction {
+  id             String          @id @default(cuid())
+  paymentId      String
+  payment        Payment         @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  kind           TransactionKind
+  idempotencyKey String?         @unique // provider + external id + method
+  requestPayload Json?
+  responsePayload Json?
+  signatureValid Boolean?
+  resultStatus   PaymentStatus?
+  errorCode      String?
+  createdAt      DateTime        @default(now())
+
+  @@index([paymentId, createdAt])
+}
+
+// Настройки методов оплаты (без секретов: секреты только в env сервера).
+model PaymentMethodConfig {
+  provider  PaymentProvider @id
+  isEnabled Boolean         @default(false)
+  sortOrder Int             @default(0)
+  minAmount Decimal?        @db.Decimal(14, 2)
+  maxAmount Decimal?        @db.Decimal(14, 2)
+  updatedAt DateTime        @updatedAt
+}
+
+// ───────────────────────── Delivery ─────────────────────────
+
+model DeliveryMethod {
+  id         String       @id @default(cuid())
+  type       DeliveryType
+  names      Json         // {"uz","ru","en"}
+  price      Decimal      @db.Decimal(14, 2)
+  freeFrom   Decimal?     @db.Decimal(14, 2) // бесплатно от суммы
+  regions    String[]     // пусто = все регионы
+  etaDays    String?      // "1–2"
+  pickupAddress Json?
+  isEnabled  Boolean      @default(true)
+  sortOrder  Int          @default(0)
+  orders     Order[]
+}
+
+model Shipment {
+  id             String         @id @default(cuid())
+  orderId        String
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status         ShipmentStatus @default(PENDING)
+  carrier        String?
+  trackingNumber String?
+  shippedAt      DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([orderId])
+}
+
+// ───────────────────────── Marketing ─────────────────────────
+
+model Coupon {
+  id             String     @id @default(cuid())
+  code           String     @unique // хранится в UPPERCASE
+  type           CouponType
+  value          Decimal    @db.Decimal(14, 2) // % (0–100) или сумма
+  minOrderAmount Decimal?   @db.Decimal(14, 2)
+  maxDiscount    Decimal?   @db.Decimal(14, 2) // потолок для процентных
+  usageLimit     Int?       // всего использований
+  perUserLimit   Int?       @default(1)
+  usedCount      Int        @default(0)
+  startsAt       DateTime?
+  expiresAt      DateTime?
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  usages         CouponUsage[]
+}
+
+model CouponUsage {
+  id        String   @id @default(cuid())
+  couponId  String
+  coupon    Coupon   @relation(fields: [couponId], references: [id], onDelete: Restrict)
+  orderId   String   @unique
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  phone     String?  // для лимита гостевых использований
+  discount  Decimal  @db.Decimal(14, 2)
+  createdAt DateTime @default(now())
+
+  @@index([couponId, userId])
+}
+
+model NewsletterSubscriber {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  locale         Locale    @default(uz)
+  source         String?   // footer, home, checkout
+  confirmedAt    DateTime? // double opt-in
+  unsubscribedAt DateTime?
+  unsubscribeTokenHash String @unique
+  createdAt      DateTime  @default(now())
+}
+
+model Review {
+  id        String       @id @default(cuid())
+  productId String
+  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int          // CHECK 1..5 в SQL-миграции
+  title     String?
+  body      String?
+  isVerifiedPurchase Boolean @default(false)
+  status    ReviewStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+
+  @@unique([productId, userId])
+  @@index([productId, status])
+}
+
+// ───────────────────────── Content & Settings ─────────────────────────
+
+// Одна строка (id = "default").
+model StoreSettings {
+  id              String   @id @default("default")
+  storeName       String   @default("FABIANO")
+  logoKey         String?
+  logoDarkKey     String?  // вариант для прозрачного header поверх hero
+  contactPhone    String?
+  contactEmail    String?
+  address         Json?
+  socials         Json?    // {"instagram":"...","telegram":"..."}
+  defaultCurrency String   @default("UZS") @db.Char(3)
+  enabledCurrencies String[] @default(["UZS"])
+  defaultLocale   Locale   @default(uz)
+  enabledLocales  Locale[] @default([uz, ru])
+  homeContent     Json?    // тексты Brand Section и т.п. по локалям
+  tryOnEnabled    Boolean  @default(false) // работает только вместе с env FEATURE_TRY_ON=true
+  updatedAt       DateTime @updatedAt
+}
+
+model HeroBanner {
+  id         String   @id @default(cuid())
+  imageKey   String
+  mobileImageKey String?
+  content    Json     // {"uz":{"title","subtitle"},"ru":{...},"en":{...}}
+  ctas       Json     // [{"label":{"uz":..},"href":"/men"}]
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  startsAt   DateTime?
+  endsAt     DateTime?
+  updatedAt  DateTime @updatedAt
+}
+
+model StaticPage {
+  id        String   @id @default(cuid())
+  slug      String   // about, faq, shipping-returns, privacy, terms, contact
+  locale    Locale
+  title     String
+  body      String   // Markdown, санитизируется при рендере
+  updatedAt DateTime @updatedAt
+
+  @@unique([slug, locale])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action    String   // product.update, order.status_change, settings.update
+  entity    String
+  entityId  String?
+  diff      Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
