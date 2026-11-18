@@ -21,9 +21,11 @@ interface HeaderProps {
   overlay?: boolean;
   logoUrl?: string | null;
   enabledLocales?: readonly AppLocale[];
+  /** На главной без фото-баннера крупный логотип уже в hero — в прозрачной шапке не дублируем */
+  hideLogoWhileTransparent?: boolean;
 }
 
-export function Header({ overlay = false, logoUrl, enabledLocales }: HeaderProps) {
+export function Header({ overlay = false, logoUrl, enabledLocales, hideLogoWhileTransparent = false }: HeaderProps) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -74,7 +76,7 @@ export function Header({ overlay = false, logoUrl, enabledLocales }: HeaderProps
             >
               {open ? <CloseIcon /> : <MenuIcon />}
             </button>
-            <nav aria-label="Main" className="hidden xl:block">
+            <nav aria-label={t("mainNav")} className="hidden xl:block">
               <ul className="flex items-center gap-7">
                 {NAV.map((n) => (
                   <li key={n.key}>
@@ -87,7 +89,9 @@ export function Header({ overlay = false, logoUrl, enabledLocales }: HeaderProps
             </nav>
           </div>
 
-          <Logo logoUrl={logoUrl} />
+          <div className={`transition-opacity duration-500 ${transparent && hideLogoWhileTransparent ? "pointer-events-none opacity-0" : "opacity-100"}`}>
+            <Logo logoUrl={logoUrl} />
+          </div>
 
           {/* Справа: действия */}
           <div className="flex items-center justify-end gap-1 md:gap-2">
@@ -115,7 +119,7 @@ export function Header({ overlay = false, logoUrl, enabledLocales }: HeaderProps
         hidden={!open}
         className="velvet fixed inset-0 top-16 z-40 overflow-y-auto text-cream md:top-20 xl:hidden"
       >
-        <nav aria-label="Mobile" className="page-x flex min-h-full flex-col pb-10 pt-6">
+        <nav aria-label={t("menu")} className="page-x flex min-h-full flex-col pb-10 pt-6">
           <ul className="flex flex-col">
             {NAV.map((n) => (
               <li key={n.key} className="border-b border-white/10">

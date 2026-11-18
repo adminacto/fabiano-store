@@ -16,7 +16,10 @@
     "menu": "Menu",
     "close": "Close",
     "language": "Language",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "mainNav": "Main menu",
+    "breadcrumbs": "Breadcrumb",
+    "admin": "Admin panel"
   },
   "hero": {
     "title": "STYLE THAT DEFINES YOU.",

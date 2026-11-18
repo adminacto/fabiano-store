@@ -27,6 +27,7 @@ export function FilterForm({
   children: React.ReactNode;
 }) {
   const t = useTranslations("catalog");
+  const tn = useTranslations("nav");
   const [open, setOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -161,7 +162,7 @@ export function FilterForm({
         <div role="dialog" aria-modal="true" aria-label={t("filters")} className="absolute inset-x-0 bottom-0 flex max-h-[88svh] flex-col bg-canvas">
           <div className="flex items-center justify-between border-b border-line px-5 py-3">
             <p className="eyebrow">{t("filters")}</p>
-            <button type="button" onClick={() => setOpen(false)} className="-mr-2 flex h-11 w-11 items-center justify-center" aria-label="Close">
+            <button type="button" onClick={() => setOpen(false)} className="-mr-2 flex h-11 w-11 items-center justify-center" aria-label={tn("close")}>
               <CloseIcon />
             </button>
           </div>

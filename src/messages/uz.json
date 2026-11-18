@@ -16,7 +16,10 @@
     "menu": "Menyu",
     "close": "Yopish",
     "language": "Til",
-    "skipToContent": "Asosiy kontentga oʻtish"
+    "skipToContent": "Asosiy kontentga oʻtish",
+    "mainNav": "Asosiy menyu",
+    "breadcrumbs": "Sahifa yoʻli",
+    "admin": "Boshqaruv paneli"
   },
   "hero": {
     "title": "SIZNI IFODALOVCHI USLUB.",
