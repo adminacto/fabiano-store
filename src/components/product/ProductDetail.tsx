@@ -12,6 +12,7 @@ import type { ProductDetail as Product } from "@/services/product";
 import { Gallery } from "./Gallery";
 import { SizeGuideDialog } from "./SizeGuideDialog";
 import { TryOnButton } from "./TryOnButton";
+import { WishlistButton } from "./WishlistButton";
 
 export function ProductDetail({ product, requestedColor, tryOn }: { product: Product; requestedColor?: string | null; tryOn: boolean }) {
   const t = useTranslations("product");
@@ -177,7 +178,10 @@ export function ProductDetail({ product, requestedColor, tryOn }: { product: Pro
           </p>
         )}
 
-        <button type="button" onClick={share} className="eyebrow link-underline mt-6 pb-1">{t("share")}</button>
+        <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
+          <WishlistButton productId={product.id} />
+          <button type="button" onClick={share} className="eyebrow link-underline pb-1">{t("share")}</button>
+        </div>
 
         {/* Описание */}
         <div className="mt-10 divide-y divide-line border-y border-line">

@@ -4,6 +4,7 @@
  */
 import { PrismaClient, type Gender } from "@prisma/client";
 import { hash } from "@node-rs/argon2";
+import { STATIC_PAGES } from "./content/pages";
 
 const prisma = new PrismaClient();
 
@@ -109,24 +110,38 @@ async function main() {
     await prisma.paymentMethodConfig.upsert({ where: { provider }, create: { provider, isEnabled: false }, update: {} });
   }
 
-  const email = process.env.SEED_ADMIN_EMAIL?.trim().toLowerCase();
-  const password = process.env.SEED_ADMIN_PASSWORD;
+  // Информационные страницы: создаются один раз, правки администратора не перезаписываются
+  for (const locale of ["uz", "ru", "en"] as const) {
+    for (const p of STATIC_PAGES[locale]) {
+      await prisma.staticPage.upsert({
+        where: { slug_locale: { slug: p.slug, locale } },
+        create: { slug: p.slug, locale, title: p.title, body: p.body },
+        update: {},
+      });
+    }
+  }
+
+  // Первый администратор. Пароль генерирует Render (ADMIN_INITIAL_PASSWORD, generateValue) —
+  // он виден только владельцу в Render → Environment. Повторный seed пароль НЕ меняет.
+  const email = (process.env.ADMIN_EMAIL ?? process.env.SEED_ADMIN_EMAIL)?.trim().toLowerCase();
+  const password = process.env.ADMIN_INITIAL_PASSWORD || process.env.SEED_ADMIN_PASSWORD;
   if (email && password) {
-    if (password.length < 12) throw new Error("SEED_ADMIN_PASSWORD must be at least 12 characters");
-    const admin = await prisma.user.upsert({
-      where: { email },
-      create: { email, passwordHash: await hash(password), firstName: "Admin" },
-      update: {},
-    });
+    if (password.length < 12) throw new Error("Admin initial password must be at least 12 characters");
+    const existing = await prisma.user.findUnique({ where: { email } });
+    const admin =
+      existing ??
+      (await prisma.user.create({
+        data: { email, passwordHash: await hash(password, { memoryCost: 19456, timeCost: 2, parallelism: 1 }), firstName: "Admin" },
+      }));
     const role = await prisma.role.findUniqueOrThrow({ where: { name: "admin" } });
     await prisma.userRole.upsert({
       where: { userId_roleId: { userId: admin.id, roleId: role.id } },
       create: { userId: admin.id, roleId: role.id },
       update: {},
     });
-    console.log(`Admin ready: ${email}`);
+    console.log(`Admin ready: ${email}${existing ? " (existing, password unchanged)" : " (created)"}`);
   } else {
-    console.log("SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD not set — admin user not created.");
+    console.log("ADMIN_EMAIL / ADMIN_INITIAL_PASSWORD not set — admin user not created.");
   }
 }
 

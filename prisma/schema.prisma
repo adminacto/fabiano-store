@@ -706,3 +706,15 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([createdAt])
 }
+
+// Хранилище изображений в PostgreSQL — пока не настроено S3 (на бесплатном Render нет постоянного диска).
+// storageKey вида "db:<id>" отдаётся через /api/media/<id>. При настройке S3 новые файлы идут туда.
+model MediaFile {
+  id        String   @id @default(cuid())
+  mime      String
+  width     Int
+  height    Int
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
+}
