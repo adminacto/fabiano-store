@@ -17,7 +17,7 @@ export function SizeGuideDialog({ table, highlight }: { table: SizeGuideTable; h
       <dialog
         ref={ref}
         onClick={(e) => e.target === ref.current && ref.current?.close()}
-        className="m-auto w-[min(40rem,calc(100vw-2rem))] bg-canvas p-0 text-ink backdrop:bg-ink/40"
+        className="m-auto w-[min(40rem,calc(100vw-2rem))] bg-canvas p-0 text-ink backdrop:bg-wine-night/60"
       >
         <div className="flex items-center justify-between border-b border-line px-6 py-4">
           <h2 className="text-2xl">{t("sizeGuide")}</h2>

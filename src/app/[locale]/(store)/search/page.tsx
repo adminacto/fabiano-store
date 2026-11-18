@@ -1,3 +1,4 @@
+import { assertLocale } from "@/i18n/routing";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/layout/SiteHeader";
@@ -12,12 +13,14 @@ type Props = { params: Promise<{ locale: AppLocale }>; searchParams: SearchParam
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
+  assertLocale(locale);
   const t = await getTranslations({ locale, namespace: "catalog" });
   return { title: t("searchTitle"), robots: { index: false, follow: true } };
 }
 
 export default async function SearchPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  assertLocale(locale);
   setRequestLocale(locale);
   const t = await getTranslations("catalog");
   const filters = parseCatalogFilters(await searchParams);

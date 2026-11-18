@@ -81,7 +81,7 @@ export function ProductDetail({ product, requestedColor, tryOn }: { product: Pro
       <div className="lg:sticky lg:top-28 lg:h-fit lg:max-w-[30rem]">
         <div className="flex items-center gap-2">
           {product.isNew && <span className="eyebrow bg-paper px-2 py-1 text-[0.625rem]">{t("new")}</span>}
-          {off && <span className="eyebrow bg-ink px-2 py-1 text-[0.625rem] text-paper">−{off}%</span>}
+          {off && <span className="eyebrow bg-wine px-2 py-1 text-[0.625rem] text-cream">−{off}%</span>}
         </div>
         <h1 className="mt-3 text-4xl leading-tight md:text-5xl">{product.name}</h1>
         <p className="mt-4 flex items-baseline gap-3 text-lg">
@@ -101,10 +101,10 @@ export function ProductDetail({ product, requestedColor, tryOn }: { product: Pro
                   <label key={c.code} className="cursor-pointer" title={c.name}>
                     <input type="radio" name="color" value={c.code} checked={c.code === color} onChange={() => chooseColor(c.code)} className="peer sr-only" />
                     <span
-                      className={`relative block h-9 w-9 rounded-full border border-ink/15 ring-offset-[3px] ring-offset-canvas peer-checked:ring-1 peer-checked:ring-ink peer-focus-visible:ring-1 peer-focus-visible:ring-ink ${any ? "" : "opacity-40"}`}
+                      className={`relative block h-9 w-9 rounded-full border border-ink/15 ring-offset-[3px] ring-offset-canvas peer-checked:ring-1 peer-checked:ring-wine peer-focus-visible:ring-1 peer-focus-visible:ring-ink ${any ? "" : "opacity-40"}`}
                       style={{ backgroundColor: c.hex }}
                     >
-                      {!any && <span className="absolute left-1/2 top-1/2 h-px w-[130%] -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-ink/60" aria-hidden />}
+                      {!any && <span className="absolute left-1/2 top-1/2 h-px w-[130%] -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-wine/60" aria-hidden />}
                     </span>
                     <span className="sr-only">{c.name}{any ? "" : ` — ${t("outOfStock")}`}</span>
                   </label>
@@ -136,7 +136,7 @@ export function ProductDetail({ product, requestedColor, tryOn }: { product: Pro
                       onChange={() => { setSize(s); setNeedSize(false); setMessage(null); }}
                       className="peer sr-only"
                     />
-                    <span className="flex h-12 items-center justify-center border border-line text-sm font-medium transition-colors peer-checked:border-ink peer-checked:bg-ink peer-checked:text-paper peer-disabled:text-muted/50 peer-disabled:line-through peer-focus-visible:outline peer-focus-visible:outline-1">
+                    <span className="flex h-12 items-center justify-center border border-line text-sm font-medium transition-colors peer-checked:border-wine peer-checked:bg-wine peer-checked:text-cream peer-disabled:text-muted/50 peer-disabled:line-through peer-focus-visible:outline peer-focus-visible:outline-1">
                       {s}
                     </span>
                   </label>
