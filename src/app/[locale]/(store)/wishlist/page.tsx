@@ -40,7 +40,7 @@ export default async function WishlistPage({ params }: Props) {
         <h1 className="text-5xl md:text-6xl">{t("title")}</h1>
 
         {!user ? (
-          <div className="mt-10 max-w-md border border-line bg-paper p-8">
+          <div className="card mt-10 max-w-md p-8">
             <p className="text-muted">{t("loginRequired")}</p>
             <Link href={`/account?next=${encodeURIComponent(`/${locale}/wishlist`)}`} className="btn btn-primary mt-6">{t("loginCta")}</Link>
           </div>

@@ -39,7 +39,7 @@ export async function OrderDetails({ order, locale }: { order: OrderView; locale
         </dl>
       </section>
 
-      <aside className="h-fit space-y-6 bg-paper p-6 text-sm md:p-8">
+      <aside className="card h-fit space-y-6 p-6 text-sm md:p-8">
         <div>
           <p className="eyebrow text-muted">{t("status")}</p>
           <p className="mt-2 text-base">{t(`statuses.${order.status}`)}</p>

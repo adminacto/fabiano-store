@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/money";
 import { requireAdmin } from "@/features/admin/guard";
 
-export const metadata = { title: "Клиенты" };
+export const metadata = { title: "Mijozlar" };
 
 export default async function AdminCustomers({ searchParams }: { searchParams: Promise<{ q?: string; page?: string; has?: string }> }) {
   await requireAdmin("customers:read");
@@ -30,21 +30,21 @@ export default async function AdminCustomers({ searchParams }: { searchParams: P
 
   return (
     <div>
-      <h1 className="text-4xl md:text-5xl">Клиенты <span className="price align-top font-sans text-base text-muted">{total}</span></h1>
+      <h1 className="text-4xl md:text-5xl">Mijozlar <span className="price align-top font-sans text-base text-muted">{total}</span></h1>
       <form method="get" className="mt-8 flex flex-wrap gap-3">
-        <input name="q" defaultValue={q} placeholder="Имя, email или телефон" className="h-11 min-w-0 flex-1 border border-line bg-paper px-3 text-sm focus:border-wine focus:outline-none" />
-        <select name="has" defaultValue={has} className="h-11 border border-line bg-paper px-3 text-sm">
-          <option value="">Все</option><option value="orders">С заказами</option>
+        <input name="q" defaultValue={q} placeholder="Ism, email yoki telefon" className="field field-sm min-w-0 flex-1" />
+        <select name="has" defaultValue={has} className="field field-sm w-auto">
+          <option value="">Hammasi</option><option value="orders">Buyurtmasi borlar</option>
         </select>
-        <button className="btn btn-outline h-11">Найти</button>
+        <button className="btn btn-outline btn-sm h-11">Qidirish</button>
       </form>
       {users.length === 0 ? (
-        <p className="mt-8 border border-line bg-paper p-10 text-center text-muted">{q || has ? "Никого не найдено." : "Зарегистрированных покупателей пока нет."}</p>
+        <p className="mt-8 card p-10 text-center text-muted">{q || has ? "Hech kim topilmadi." : "Roʻyxatdan oʻtgan xaridorlar hozircha yoʻq."}</p>
       ) : (
-        <div className="mt-6 overflow-x-auto border border-line bg-paper">
+        <div className="mt-6 card overflow-x-auto">
           <table className="w-full min-w-[44rem] text-left text-sm">
-            <thead className="border-b border-line text-xs text-muted">
-              <tr><th className="p-3 font-medium">Клиент</th><th className="p-3 font-medium">Контакты</th><th className="p-3 font-medium">Заказов</th><th className="p-3 font-medium">Сумма покупок</th><th className="p-3 font-medium">С нами с</th></tr>
+            <thead className="border-b border-line bg-canvas/70 text-[0.6875rem] uppercase tracking-wider text-muted">
+              <tr><th className="p-3 font-medium">Mijoz</th><th className="p-3 font-medium">Kontaktlar</th><th className="p-3 font-medium">Buyurtmalar</th><th className="p-3 font-medium">Xaridlar summasi</th><th className="p-3 font-medium">Biz bilan</th></tr>
             </thead>
             <tbody className="divide-y divide-line">
               {users.map((u) => {
@@ -54,8 +54,8 @@ export default async function AdminCustomers({ searchParams }: { searchParams: P
                     <td className="p-3">{u.firstName} {u.lastName}</td>
                     <td className="p-3">{u.email}<p className="price text-xs text-muted">{u.phone}</p></td>
                     <td className="price p-3">{s?._count ? <Link className="link-underline" href={`/admin/orders?q=${encodeURIComponent(u.email ?? u.phone ?? "")}`}>{s._count}</Link> : 0}</td>
-                    <td className="price p-3">{formatMoney(s?._sum.grandTotal?.toString() ?? "0", "ru")}</td>
-                    <td className="p-3 text-muted">{u.createdAt.toLocaleDateString("ru-RU", { timeZone: "Asia/Tashkent" })}</td>
+                    <td className="price p-3">{formatMoney(s?._sum.grandTotal?.toString() ?? "0", "uz")}</td>
+                    <td className="p-3 text-muted">{u.createdAt.toLocaleDateString("uz-Latn-UZ", { timeZone: "Asia/Tashkent" })}</td>
                   </tr>
                 );
               })}
@@ -65,9 +65,9 @@ export default async function AdminCustomers({ searchParams }: { searchParams: P
       )}
       {pages > 1 && (
         <nav className="mt-6 flex justify-between text-sm">
-          {current > 1 ? <Link className="link-underline" href={`?q=${encodeURIComponent(q)}&has=${has}&page=${current - 1}`}>← Назад</Link> : <span />}
+          {current > 1 ? <Link className="link-underline" href={`?q=${encodeURIComponent(q)}&has=${has}&page=${current - 1}`}>← Orqaga</Link> : <span />}
           <span className="text-muted">{current} / {pages}</span>
-          {current < pages ? <Link className="link-underline" href={`?q=${encodeURIComponent(q)}&has=${has}&page=${current + 1}`}>Вперёд →</Link> : <span />}
+          {current < pages ? <Link className="link-underline" href={`?q=${encodeURIComponent(q)}&has=${has}&page=${current + 1}`}>Oldinga →</Link> : <span />}
         </nav>
       )}
     </div>

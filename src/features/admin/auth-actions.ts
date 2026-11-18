@@ -15,11 +15,11 @@ export async function adminLoginAction(_prev: FormState, form: FormData): Promis
   const parsed = z
     .object({ email: z.string().trim().toLowerCase().email().max(254), password: z.string().min(1).max(200) })
     .safeParse({ email: form.get("email"), password: form.get("password") });
-  if (!parsed.success) return { error: "Введите email и пароль." };
+  if (!parsed.success) return { error: "Email va parolni kiriting." };
 
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   if (!rateLimit(`admin-login:${ip}`, 8, 900).ok || !rateLimit(`admin-login:${parsed.data.email}`, 5, 900).ok) {
-    return { error: "Слишком много попыток. Подождите 15 минут." };
+    return { error: "Juda koʻp urinish. 15 daqiqa kuting." };
   }
 
   const user = await prisma.user.findUnique({
@@ -29,7 +29,7 @@ export async function adminLoginAction(_prev: FormState, form: FormData): Promis
   const ok = await verifyPassword(user?.passwordHash, parsed.data.password);
   const perms = new Set(user?.roles.flatMap((r) => r.role.permissions) ?? []);
   if (!user || !ok || !user.isActive || !(perms.has("*") || perms.has("admin:access"))) {
-    return { error: "Неверный email или пароль." };
+    return { error: "Email yoki parol notoʻgʻri." };
   }
 
   await createSession(user.id);
@@ -47,12 +47,12 @@ export async function changePasswordAction(_prev: FormState, form: FormData): Pr
   const current = String(form.get("current") ?? "");
   const next = String(form.get("next") ?? "");
   const repeat = String(form.get("repeat") ?? "");
-  if (next.length < 12) return { error: "Новый пароль — минимум 12 символов." };
-  if (next !== repeat) return { error: "Пароли не совпадают." };
+  if (next.length < 12) return { error: "Yangi parol — kamida 12 belgi." };
+  if (next !== repeat) return { error: "Parollar mos kelmadi." };
   const user = await prisma.user.findUnique({ where: { id: admin.id } });
-  if (!(await verifyPassword(user?.passwordHash, current))) return { error: "Текущий пароль указан неверно." };
+  if (!(await verifyPassword(user?.passwordHash, current))) return { error: "Joriy parol notoʻgʻri." };
   await prisma.user.update({ where: { id: admin.id }, data: { passwordHash: await hashPassword(next) } });
   await revokeOtherSessions(admin.id);
   await prisma.auditLog.create({ data: { actorId: admin.id, action: "admin.password_change", entity: "User", entityId: admin.id } });
-  return { ok: "Пароль изменён. Остальные сеансы завершены." };
+  return { ok: "Parol oʻzgartirildi. Boshqa seanslar yakunlandi." };
 }

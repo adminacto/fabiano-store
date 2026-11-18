@@ -61,7 +61,7 @@ export default async function CheckoutPage({ params }: Props) {
               prefill={{ firstName: user?.firstName, lastName: user?.lastName, phone: user?.phone ? formatUzPhone(user.phone) : null, email: user?.email }}
             />
           ) : (
-            <div className="max-w-xl border border-line bg-paper p-8">
+            <div className="card max-w-xl p-8">
               <p className="text-ink/85">{t("unavailable")}</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link href="/pages/contact" className="btn btn-primary">{(await getTranslations("footer"))("contact")}</Link>

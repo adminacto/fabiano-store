@@ -68,7 +68,7 @@ export function CartClient({ initial }: { initial: CartView }) {
         <Link href="/catalog" className="eyebrow link-underline mt-8 inline-block pb-1">← {t("continue")}</Link>
       </section>
 
-      <aside aria-labelledby="summary-title" className="h-fit bg-paper p-6 md:p-8 lg:sticky lg:top-28">
+      <aside aria-labelledby="summary-title" className="card h-fit p-6 md:p-8 lg:sticky lg:top-28">
         <h2 id="summary-title" className="eyebrow font-sans">{t("summary")}</h2>
 
         {/* Промокод */}
@@ -233,9 +233,9 @@ function CartLine({
 
         <div className="mt-auto flex items-end justify-between gap-4 pt-4">
           <div className="flex h-11 items-center border border-line" role="group" aria-label={t("quantity")}>
-            <button type="button" onClick={() => onQty(line.quantity - 1)} disabled={disabled || line.quantity <= 1} aria-label={t("decrease")} className="h-full w-11 disabled:opacity-30">−</button>
+            <button type="button" onClick={() => onQty(line.quantity - 1)} disabled={disabled || line.quantity <= 1} aria-label={t("decrease")} className="h-full w-11 transition-colors hover:bg-canvas disabled:opacity-30">−</button>
             <span className="price w-8 text-center text-sm" aria-live="polite">{line.quantity}</span>
-            <button type="button" onClick={() => onQty(line.quantity + 1)} disabled={disabled || line.quantity >= maxQty} aria-label={t("increase")} className="h-full w-11 disabled:opacity-30">+</button>
+            <button type="button" onClick={() => onQty(line.quantity + 1)} disabled={disabled || line.quantity >= maxQty} aria-label={t("increase")} className="h-full w-11 transition-colors hover:bg-canvas disabled:opacity-30">+</button>
           </div>
           <div className="text-right">
             <p className="price text-sm md:text-base">{money(line.lineTotal)}</p>

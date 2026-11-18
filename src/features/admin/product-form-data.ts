@@ -5,15 +5,15 @@ import type { ProductFormData } from "@/components/admin/ProductForm";
 
 export async function loadFormOptions() {
   const [categories, collections, colors, sizes] = await Promise.all([
-    prisma.category.findMany({ where: { isActive: true }, orderBy: [{ gender: "asc" }, { sortOrder: "asc" }], include: { translations: { where: { locale: "ru" } } } }),
-    prisma.collection.findMany({ orderBy: { sortOrder: "asc" }, include: { translations: { where: { locale: "ru" } } } }),
+    prisma.category.findMany({ where: { isActive: true }, orderBy: [{ gender: "asc" }, { sortOrder: "asc" }], include: { translations: { where: { locale: "uz" } } } }),
+    prisma.collection.findMany({ orderBy: { sortOrder: "asc" }, include: { translations: { where: { locale: "uz" } } } }),
     prisma.color.findMany({ orderBy: { code: "asc" } }),
     prisma.size.findMany({ orderBy: { sortOrder: "asc" } }),
   ]);
   return {
-    categories: categories.map((c) => ({ id: c.id, gender: c.gender, label: `${c.gender === "MEN" ? "Мужское" : c.gender === "WOMEN" ? "Женское" : "Унисекс"} · ${c.translations[0]?.name ?? c.slug}` })),
+    categories: categories.map((c) => ({ id: c.id, gender: c.gender, label: `${c.gender === "MEN" ? "Erkaklar" : c.gender === "WOMEN" ? "Ayollar" : "Uniseks"} · ${c.translations[0]?.name ?? c.slug}` })),
     collections: collections.map((c) => ({ id: c.id, label: c.translations[0]?.name ?? c.slug })),
-    colors: colors.map((c) => ({ id: c.id, hex: c.hex, label: localized(c.names, "ru") || c.code })),
+    colors: colors.map((c) => ({ id: c.id, hex: c.hex, label: localized(c.names, "uz") || c.code })),
     sizes: sizes.map((s) => ({ id: s.id, label: s.code })),
   };
 }

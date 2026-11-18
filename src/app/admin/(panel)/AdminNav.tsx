@@ -4,18 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const ITEMS = [
-  { href: "/admin", label: "Обзор" },
-  { href: "/admin/products", label: "Товары" },
-  { href: "/admin/orders", label: "Заказы" },
-  { href: "/admin/customers", label: "Клиенты" },
-  { href: "/admin/coupons", label: "Промокоды" },
-  { href: "/admin/settings", label: "Настройки" },
+  { href: "/admin", label: "Umumiy koʻrinish" },
+  { href: "/admin/products", label: "Mahsulotlar" },
+  { href: "/admin/orders", label: "Buyurtmalar" },
+  { href: "/admin/customers", label: "Mijozlar" },
+  { href: "/admin/coupons", label: "Promokodlar" },
+  { href: "/admin/settings", label: "Sozlamalar" },
 ];
 
 export function AdminNav() {
   const path = usePathname();
   return (
-    <nav aria-label="Админ-меню" className="overflow-x-auto [scrollbar-width:none] lg:flex-1 lg:overflow-visible">
+    <nav aria-label="Admin menyusi" className="overflow-x-auto [scrollbar-width:none] lg:flex-1 lg:overflow-visible">
       <ul className="flex gap-1 px-3 pb-3 lg:flex-col lg:px-3 lg:pb-0">
         {ITEMS.map((i) => {
           const active = i.href === "/admin" ? path === "/admin" : path.startsWith(i.href);
