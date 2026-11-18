@@ -7,6 +7,10 @@ const mediaUrl = process.env.S3_PUBLIC_BASE_URL ? new URL(process.env.S3_PUBLIC_
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  experimental: {
+    // Загрузка фото товаров через server actions (до 12 файлов по 12 МБ проверяется в коде)
+    serverActions: { bodySizeLimit: "60mb" },
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [390, 640, 828, 1080, 1440, 1920, 2400],

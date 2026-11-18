@@ -1,25 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
-import { Cormorant_Garamond, Manrope } from "next/font/google";
+import { serif, sans } from "@/lib/fonts";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { isLocale, locales, assertLocale } from "@/i18n/routing";
 import "@/styles/globals.css";
-
-const serif = Cormorant_Garamond({
-  subsets: ["latin", "latin-ext", "cyrillic"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-cormorant",
-  display: "swap",
-});
-
-const sans = Manrope({
-  subsets: ["latin", "latin-ext", "cyrillic"],
-  weight: ["400", "500", "600"],
-  variable: "--font-manrope",
-  display: "swap",
-});
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
