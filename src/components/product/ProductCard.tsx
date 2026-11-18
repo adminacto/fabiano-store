@@ -43,7 +43,7 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
           )}
 
           <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
-            {product.isNew && <span className="eyebrow bg-paper px-2 py-1 text-[0.625rem]">{t("new")}</span>}
+            {product.isNew && <span className="eyebrow bg-cream px-2 py-1 text-[0.625rem] text-wine-deep">{t("new")}</span>}
             {off && <span className="eyebrow bg-wine px-2 py-1 text-[0.625rem] text-cream">−{off}%</span>}
           </div>
           {!product.inStock && (

@@ -70,7 +70,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
           <section aria-labelledby="orders-title">
             <h2 id="orders-title" className="text-3xl">{t("orders")}</h2>
             {orders.length === 0 ? (
-              <div className="mt-6 border border-line bg-paper p-8">
+              <div className="card mt-6 p-8">
                 <p className="text-muted">{t("noOrders")}</p>
                 <Link href="/catalog" className="btn btn-primary mt-6">{(await getTranslations("cart"))("continue")}</Link>
               </div>
@@ -91,7 +91,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
             )}
           </section>
 
-          <aside aria-labelledby="profile-title" className="h-fit bg-paper p-6 md:p-8">
+          <aside aria-labelledby="profile-title" className="card h-fit p-6 md:p-8">
             <h2 id="profile-title" className="text-2xl">{t("profile")}</h2>
             <div className="mt-6">
               <ProfileForm firstName={user.firstName} lastName={user.lastName} phone={user.phone} email={user.email} />

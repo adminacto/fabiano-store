@@ -12,7 +12,7 @@ export const viewport: Viewport = { themeColor: "#3A0A13" };
 /** Отдельный корневой layout админки: свой язык (русский), без витринной навигации и без индексации. */
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru" className={`${serif.variable} ${sans.variable}`}>
+    <html lang="uz" className={`${serif.variable} ${sans.variable}`}>
       <body className="min-h-svh bg-canvas text-ink">{children}</body>
     </html>
   );

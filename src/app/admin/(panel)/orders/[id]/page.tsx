@@ -10,7 +10,7 @@ import { changeOrderStatusAction } from "@/features/admin/store-actions";
 import { ActionForm, inputCls, labelCls } from "@/components/admin/ui";
 import { ORDER_STATUS, PAYMENT_STATUS, PROVIDER } from "@/components/admin/labels";
 
-export const metadata = { title: "Заказ" };
+export const metadata = { title: "Buyurtma" };
 
 export default async function AdminOrderPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin("orders:read");
@@ -25,27 +25,27 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
     },
   });
   if (!o) notFound();
-  const money = (v: { toString(): string }) => formatMoney(v.toString(), "ru", o.currency);
+  const money = (v: { toString(): string }) => formatMoney(v.toString(), "uz", o.currency);
   const a = o.shippingAddress as Record<string, string | null>;
   const delivery = o.deliverySnapshot as { name?: string };
   const next = ORDER_STATUS_TRANSITIONS[o.status as OrderStatus];
-  const dt = (d: Date) => d.toLocaleString("ru-RU", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Tashkent" });
+  const dt = (d: Date) => d.toLocaleString("uz-Latn-UZ", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Tashkent" });
 
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/admin/orders" className="text-xs text-muted link-underline">← Все заказы</Link>
+        <Link href="/admin/orders" className="text-xs text-muted link-underline">← Barcha buyurtmalar</Link>
         <div className="mt-4 flex flex-wrap items-center gap-4">
           <h1 className="price font-serif text-4xl md:text-5xl">{o.number}</h1>
-          <span className={`px-2 py-1 text-xs ${ORDER_STATUS[o.status]?.cls}`}>{ORDER_STATUS[o.status]?.label}</span>
+          <span className={`pill ${ORDER_STATUS[o.status]?.cls}`}>{ORDER_STATUS[o.status]?.label}</span>
         </div>
         <p className="mt-2 text-sm text-muted">{dt(o.createdAt)}</p>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
-          <section className="border border-line bg-paper p-6">
-            <h2 className="text-2xl">Состав заказа</h2>
+          <section className="card p-6">
+            <h2 className="text-2xl">Buyurtma tarkibi</h2>
             <ul className="mt-4 divide-y divide-line">
               {o.items.map((i) => {
                 const img = mediaUrl(i.imageKey);
@@ -63,15 +63,15 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
               })}
             </ul>
             <dl className="ml-auto mt-4 max-w-xs space-y-1.5 text-sm">
-              <div className="flex justify-between"><dt className="text-muted">Товары</dt><dd className="price">{money(o.subtotal)}</dd></div>
-              {Number(o.discountTotal) > 0 && <div className="flex justify-between"><dt className="text-muted">Скидка {o.couponCode}</dt><dd className="price text-accent">−{money(o.discountTotal)}</dd></div>}
-              <div className="flex justify-between"><dt className="text-muted">Доставка</dt><dd className="price">{money(o.shippingTotal)}</dd></div>
-              <div className="flex justify-between border-t border-line pt-2 text-base"><dt>Итого</dt><dd className="price">{money(o.grandTotal)}</dd></div>
+              <div className="flex justify-between"><dt className="text-muted">Mahsulotlar</dt><dd className="price">{money(o.subtotal)}</dd></div>
+              {Number(o.discountTotal) > 0 && <div className="flex justify-between"><dt className="text-muted">Chegirma {o.couponCode}</dt><dd className="price text-accent">−{money(o.discountTotal)}</dd></div>}
+              <div className="flex justify-between"><dt className="text-muted">Yetkazib berish</dt><dd className="price">{money(o.shippingTotal)}</dd></div>
+              <div className="flex justify-between border-t border-line pt-2 text-base"><dt>Jami</dt><dd className="price">{money(o.grandTotal)}</dd></div>
             </dl>
           </section>
 
-          <section className="border border-line bg-paper p-6">
-            <h2 className="text-2xl">История</h2>
+          <section className="card p-6">
+            <h2 className="text-2xl">Tarix</h2>
             <ol className="mt-4 space-y-3 text-sm">
               {o.statusHistory.map((h) => (
                 <li key={h.id} className="flex flex-wrap gap-x-3">
@@ -87,25 +87,25 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
 
         <aside className="space-y-6">
           {next.length > 0 && (
-            <section className="border border-wine/40 bg-paper p-6">
-              <h2 className="text-xl">Изменить статус</h2>
-              <ActionForm action={changeOrderStatusAction} submit="Применить" className="mt-4 space-y-3">
+            <section className="card border-wine/40 p-6">
+              <h2 className="text-xl">Holatni oʻzgartirish</h2>
+              <ActionForm action={changeOrderStatusAction} submit="Qoʻllash" className="mt-4 space-y-3">
                 <input type="hidden" name="id" value={o.id} />
-                <label><span className={labelCls}>Новый статус</span>
+                <label><span className={labelCls}>Yangi holat</span>
                   <select name="to" className={inputCls} required>
                     {next.map((s) => <option key={s} value={s}>{ORDER_STATUS[s]?.label}</option>)}
                   </select>
                 </label>
-                <label><span className={labelCls}>Комментарий (виден в истории)</span><input name="note" maxLength={500} className={inputCls} /></label>
-                <p className="text-xs text-muted">«Отправлен» списывает товар со склада. «Отменён» до отправки возвращает резерв. «Доставлен» отмечает оплату при получении как оплаченную.</p>
+                <label><span className={labelCls}>Izoh (tarixda koʻrinadi)</span><input name="note" maxLength={500} className={inputCls} /></label>
+                <p className="text-xs text-muted">«Yuborildi» mahsulotni ombordan hisobdan chiqaradi. Yuborilgunga qadar «Bekor qilindi» bandni qaytaradi. «Yetkazildi» qabul qilganda toʻlovni toʻlangan deb belgilaydi.</p>
               </ActionForm>
             </section>
           )}
-          <section className="space-y-4 border border-line bg-paper p-6 text-sm">
-            <div><p className="text-xs text-muted">Покупатель</p><p className="mt-1">{o.firstName} {o.lastName}</p><p className="price"><a className="link-underline" href={`tel:${o.phone}`}>{o.phone}</a></p>{o.email && <p>{o.email}</p>}{o.user ? <Link href={`/admin/customers?q=${encodeURIComponent(o.user.email ?? "")}`} className="text-xs text-accent link-underline">Профиль клиента</Link> : <p className="text-xs text-muted">Гостевой заказ</p>}</div>
-            <div><p className="text-xs text-muted">Адрес доставки</p><p className="mt-1 leading-relaxed">{[a.region, a.district].filter(Boolean).join(", ")}<br />{[a.street, a.house && `д. ${a.house}`, a.apartment && `кв. ${a.apartment}`].filter(Boolean).join(", ")}</p>{o.customerComment && <p className="mt-1 text-muted">«{o.customerComment}»</p>}</div>
-            <div><p className="text-xs text-muted">Доставка</p><p className="mt-1">{delivery.name}</p></div>
-            <div><p className="text-xs text-muted">Оплата</p>{o.payments.map((p) => <p key={p.id} className="mt-1">{PROVIDER[p.provider]} — {PAYMENT_STATUS[p.status]}</p>)}</div>
+          <section className="card space-y-4 p-6 text-sm">
+            <div><p className="text-xs text-muted">Xaridor</p><p className="mt-1">{o.firstName} {o.lastName}</p><p className="price"><a className="link-underline" href={`tel:${o.phone}`}>{o.phone}</a></p>{o.email && <p>{o.email}</p>}{o.user ? <Link href={`/admin/customers?q=${encodeURIComponent(o.user.email ?? "")}`} className="text-xs text-accent link-underline">Mijoz profili</Link> : <p className="text-xs text-muted">Mehmon buyurtmasi</p>}</div>
+            <div><p className="text-xs text-muted">Yetkazib berish manzili</p><p className="mt-1 leading-relaxed">{[a.region, a.district].filter(Boolean).join(", ")}<br />{[a.street, a.house && `${a.house}-uy`, a.apartment && `${a.apartment}-xonadon`].filter(Boolean).join(", ")}</p>{o.customerComment && <p className="mt-1 text-muted">«{o.customerComment}»</p>}</div>
+            <div><p className="text-xs text-muted">Yetkazib berish</p><p className="mt-1">{delivery.name}</p></div>
+            <div><p className="text-xs text-muted">Toʻlov</p>{o.payments.map((p) => <p key={p.id} className="mt-1">{PROVIDER[p.provider]} — {PAYMENT_STATUS[p.status]}</p>)}</div>
           </section>
         </aside>
       </div>

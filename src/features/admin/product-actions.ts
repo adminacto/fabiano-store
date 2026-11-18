@@ -60,17 +60,17 @@ export async function saveProductAction(_prev: FormState, form: FormData): Promi
   if (!parsed.success) {
     const f = String(parsed.error.issues[0]?.path[0] ?? "");
     const msg: Record<string, string> = {
-      sku: "Артикул: 2–30 символов, латиница, цифры и дефис.",
-      slug: "Адрес (slug): латиница, цифры и дефисы.",
-      price: "Укажите цену числом, например 289000.",
-      compareAtPrice: "Старая цена — числом, например 349000.",
-      categoryId: "Выберите категорию.",
+      sku: "Artikul: 2–30 belgi, lotin harflari, raqamlar va chiziqcha.",
+      slug: "Manzil (slug): lotin harflari, raqamlar va chiziqchalar.",
+      price: "Narxni raqam bilan kiriting, masalan 289000.",
+      compareAtPrice: "Eski narx — raqam bilan, masalan 349000.",
+      categoryId: "Toifani tanlang.",
     };
-    return { error: msg[f] ?? "Проверьте заполнение полей." };
+    return { error: msg[f] ?? "Maydonlar toʻgʻri toʻldirilganini tekshiring." };
   }
   const d = parsed.data;
-  if (d.compareAtPrice && Number(d.compareAtPrice) <= Number(d.price)) return { error: "Старая цена должна быть больше текущей." };
-  if (Number(d.price) <= 0) return { error: "Цена должна быть больше нуля." };
+  if (d.compareAtPrice && Number(d.compareAtPrice) <= Number(d.price)) return { error: "Eski narx joriy narxdan katta boʻlishi kerak." };
+  if (Number(d.price) <= 0) return { error: "Narx noldan katta boʻlishi kerak." };
 
   const tr = LOCALES.map((l) => ({
     locale: l,
@@ -81,7 +81,7 @@ export async function saveProductAction(_prev: FormState, form: FormData): Promi
   }));
   for (const l of ["uz", "ru"] as const) {
     const t = tr.find((x) => x.locale === l)!;
-    if (!t.name || !t.description) return { error: `Заполните название и описание (${l.toUpperCase()}).` };
+    if (!t.name || !t.description) return { error: `Nomi va tavsifini toʻldiring (${l.toUpperCase()}).` };
   }
   const translations = tr.filter((t) => t.name && t.description);
 
@@ -89,9 +89,9 @@ export async function saveProductAction(_prev: FormState, form: FormData): Promi
   try {
     variants = variantsSchema.parse(JSON.parse(String(form.get("variants") ?? "[]")));
   } catch {
-    return { error: "Некорректные данные вариантов." };
+    return { error: "Variantlar maʼlumotlari notoʻgʻri." };
   }
-  if (d.status === "ACTIVE" && variants.length === 0) return { error: "Чтобы опубликовать товар, добавьте хотя бы один цвет и размер." };
+  if (d.status === "ACTIVE" && variants.length === 0) return { error: "Mahsulotni chop etish uchun kamida bitta rang va oʻlcham qoʻshing." };
 
   const collectionIds = form.getAll("collectionIds").map(String).filter(Boolean);
   const nameForSlug = tr.find((t) => t.locale === "en")?.name || tr.find((t) => t.locale === "uz")!.name;
@@ -101,7 +101,7 @@ export async function saveProductAction(_prev: FormState, form: FormData): Promi
     where: { OR: [{ slug }, { sku: d.sku }], ...(d.id ? { NOT: { id: d.id } } : {}) },
     select: { slug: true, sku: true },
   });
-  if (clash) return { error: clash.sku === d.sku ? "Товар с таким артикулом уже есть." : "Такой адрес (slug) уже занят." };
+  if (clash) return { error: clash.sku === d.sku ? "Bunday artikulli mahsulot allaqachon bor." : "Bu manzil (slug) band." };
 
   const [colors, sizes] = await Promise.all([prisma.color.findMany(), prisma.size.findMany()]);
   const colorById = new Map(colors.map((c) => [c.id, c]));
@@ -165,10 +165,10 @@ export async function saveProductAction(_prev: FormState, form: FormData): Promi
     const m = e instanceof Error ? e.message : "";
     if (m.startsWith("RESERVED:")) {
       const [, combo, n] = m.split(":");
-      return { error: `Нельзя поставить остаток ${combo} меньше ${n}: столько уже зарезервировано в заказах.` };
+      return { error: `Qoldiqni ${combo} dan kam qoʻyib boʻlmaydi: ${n}: shuncha buyurtmalarda band qilingan.` };
     }
     console.error("[admin] saveProduct", e);
-    return { error: "Не удалось сохранить товар." };
+    return { error: "Mahsulotni saqlab boʻlmadi." };
   }
 
   revalidatePath("/", "layout");
@@ -197,10 +197,10 @@ export async function uploadImagesAction(_prev: FormState, form: FormData): Prom
   const productId = String(form.get("productId") ?? "");
   const colorId = String(form.get("colorId") ?? "") || null;
   const files = form.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
-  if (!files.length) return { error: "Выберите файлы." };
-  if (files.length > 12) return { error: "Не больше 12 файлов за раз." };
+  if (!files.length) return { error: "Fayllarni tanlang." };
+  if (files.length > 12) return { error: "Bir martada 12 tadan koʻp boʻlmagan fayl." };
   const product = await prisma.product.findUnique({ where: { id: productId }, select: { id: true, _count: { select: { images: true } } } });
-  if (!product) return { error: "Товар не найден." };
+  if (!product) return { error: "Mahsulot topilmadi." };
 
   let order = product._count.images;
   const failed: string[] = [];
@@ -210,11 +210,11 @@ export async function uploadImagesAction(_prev: FormState, form: FormData): Prom
       await prisma.productImage.create({ data: { productId, colorId, storageKey: stored.storageKey, width: stored.width, height: stored.height, sortOrder: order++ } });
     } catch (e) {
       const code = e instanceof UploadError ? e.code : "ERROR";
-      failed.push(`${f.name} (${{ TOO_LARGE: "больше 12 МБ", NOT_IMAGE: "не изображение", UNSUPPORTED: "формат не поддерживается", EMPTY: "пустой файл" }[code as UploadError["code"]] ?? "ошибка"})`);
+      failed.push(`${f.name} (${{ TOO_LARGE: "12 MB dan katta", NOT_IMAGE: "rasm emas", UNSUPPORTED: "format qoʻllab-quvvatlanmaydi", EMPTY: "boʻsh fayl" }[code as UploadError["code"]] ?? "xato"})`);
     }
   }
   revalidatePath("/", "layout");
-  return failed.length ? { error: `Не загружены: ${failed.join(", ")}` } : { ok: `Загружено фото: ${files.length}` };
+  return failed.length ? { error: `Yuklanmadi: ${failed.join(", ")}` } : { ok: `Yuklangan rasmlar: ${files.length}` };
 }
 
 export async function updateImageAction(form: FormData) {

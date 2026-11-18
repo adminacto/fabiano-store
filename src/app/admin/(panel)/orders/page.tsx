@@ -5,7 +5,7 @@ import { formatMoney } from "@/lib/money";
 import { requireAdmin } from "@/features/admin/guard";
 import { ORDER_STATUS, PAYMENT_STATUS } from "@/components/admin/labels";
 
-export const metadata = { title: "Заказы" };
+export const metadata = { title: "Buyurtmalar" };
 
 export default async function AdminOrders({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; from?: string; to?: string; page?: string }> }) {
   await requireAdmin("orders:read");
@@ -39,39 +39,39 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
 
   return (
     <div>
-      <h1 className="text-4xl md:text-5xl">Заказы <span className="price align-top font-sans text-base text-muted">{total}</span></h1>
+      <h1 className="text-4xl md:text-5xl">Buyurtmalar <span className="price align-top font-sans text-base text-muted">{total}</span></h1>
 
       <form method="get" className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_12rem_10rem_10rem_auto]">
-        <input name="q" defaultValue={q} placeholder="Номер, телефон, имя, email" className="h-11 border border-line bg-paper px-3 text-sm focus:border-wine focus:outline-none" />
-        <select name="status" defaultValue={status} className="h-11 border border-line bg-paper px-3 text-sm">
-          <option value="">Все статусы</option>
+        <input name="q" defaultValue={q} placeholder="Raqam, telefon, ism, email" className="field field-sm" />
+        <select name="status" defaultValue={status} className="field field-sm w-auto">
+          <option value="">Barcha holatlar</option>
           {Object.entries(ORDER_STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>
-        <input type="date" name="from" defaultValue={from} aria-label="С даты" className="h-11 border border-line bg-paper px-3 text-sm" />
-        <input type="date" name="to" defaultValue={to} aria-label="По дату" className="h-11 border border-line bg-paper px-3 text-sm" />
-        <button className="btn btn-outline h-11">Найти</button>
+        <input type="date" name="from" defaultValue={from} aria-label="Sanadan" className="field field-sm w-auto" />
+        <input type="date" name="to" defaultValue={to} aria-label="Sanagacha" className="field field-sm w-auto" />
+        <button className="btn btn-outline btn-sm h-11">Qidirish</button>
       </form>
 
       {rows.length === 0 ? (
-        <p className="mt-8 border border-line bg-paper p-10 text-center text-muted">{q || status || from || to ? "Ничего не найдено." : "Заказов пока нет. Они появятся здесь, как только покупатели начнут оформлять заказы."}</p>
+        <p className="mt-8 card p-10 text-center text-muted">{q || status || from || to ? "Hech narsa topilmadi." : "Hozircha buyurtmalar yoʻq. Xaridorlar buyurtma bera boshlashi bilan ular shu yerda paydo boʻladi."}</p>
       ) : (
-        <div className="mt-6 overflow-x-auto border border-line bg-paper">
+        <div className="mt-6 card overflow-x-auto">
           <table className="w-full min-w-[52rem] text-left text-sm">
-            <thead className="border-b border-line text-xs text-muted">
+            <thead className="border-b border-line bg-canvas/70 text-[0.6875rem] uppercase tracking-wider text-muted">
               <tr>
-                <th className="p-3 font-medium">Номер</th><th className="p-3 font-medium">Дата</th><th className="p-3 font-medium">Покупатель</th>
-                <th className="p-3 font-medium">Сумма</th><th className="p-3 font-medium">Оплата</th><th className="p-3 font-medium">Статус</th>
+                <th className="p-3 font-medium">Raqam</th><th className="p-3 font-medium">Sana</th><th className="p-3 font-medium">Xaridor</th>
+                <th className="p-3 font-medium">Summa</th><th className="p-3 font-medium">Toʻlov</th><th className="p-3 font-medium">Holat</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {rows.map((o) => (
                 <tr key={o.id} className="hover:bg-canvas">
                   <td className="p-3"><Link href={`/admin/orders/${o.id}`} className="price link-underline font-medium">{o.number}</Link></td>
-                  <td className="p-3 text-muted">{o.createdAt.toLocaleString("ru-RU", { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Tashkent" })}</td>
+                  <td className="p-3 text-muted">{o.createdAt.toLocaleString("uz-Latn-UZ", { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Tashkent" })}</td>
                   <td className="p-3">{o.firstName} {o.lastName}<p className="price text-xs text-muted">{o.phone}</p></td>
-                  <td className="price p-3">{formatMoney(o.grandTotal.toString(), "ru")}<p className="text-xs text-muted">{o._count.items} поз.</p></td>
+                  <td className="price p-3">{formatMoney(o.grandTotal.toString(), "uz")}<p className="text-xs text-muted">{o._count.items} poz.</p></td>
                   <td className="p-3 text-xs">{PAYMENT_STATUS[o.paymentStatus]}</td>
-                  <td className="p-3"><span className={`px-2 py-1 text-xs ${ORDER_STATUS[o.status]?.cls}`}>{ORDER_STATUS[o.status]?.label}</span></td>
+                  <td className="p-3"><span className={`pill ${ORDER_STATUS[o.status]?.cls}`}>{ORDER_STATUS[o.status]?.label}</span></td>
                 </tr>
               ))}
             </tbody>
@@ -81,9 +81,9 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
 
       {pages > 1 && (
         <nav className="mt-6 flex items-center justify-between text-sm">
-          {current > 1 ? <Link className="link-underline" href={qs(current - 1)}>← Назад</Link> : <span />}
+          {current > 1 ? <Link className="link-underline" href={qs(current - 1)}>← Orqaga</Link> : <span />}
           <span className="text-muted">{current} / {pages}</span>
-          {current < pages ? <Link className="link-underline" href={qs(current + 1)}>Вперёд →</Link> : <span />}
+          {current < pages ? <Link className="link-underline" href={qs(current + 1)}>Oldinga →</Link> : <span />}
         </nav>
       )}
     </div>

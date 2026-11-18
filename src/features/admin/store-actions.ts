@@ -22,13 +22,13 @@ export async function changeOrderStatusAction(_prev: FormState, form: FormData):
   try {
     await changeOrderStatus(id, to, admin.id, note);
   } catch (e) {
-    if (e instanceof StatusError) return { error: e.code === "NOT_FOUND" ? "Заказ не найден." : "Такой переход статуса недопустим." };
+    if (e instanceof StatusError) return { error: e.code === "NOT_FOUND" ? "Buyurtma topilmadi." : "Bunday holatga oʻtish mumkin emas." };
     console.error("[admin] status", e);
-    return { error: "Не удалось изменить статус." };
+    return { error: "Holatni oʻzgartirib boʻlmadi." };
   }
   revalidatePath(`/admin/orders/${id}`);
   revalidatePath("/", "layout");
-  return { ok: "Статус обновлён." };
+  return { ok: "Holat yangilandi." };
 }
 
 // ── Промокоды ───────────────────────────────────────
@@ -47,13 +47,13 @@ const couponSchema = z.object({
 export async function createCouponAction(_prev: FormState, form: FormData): Promise<FormState> {
   const admin = await requireAdmin("coupons:write");
   const p = couponSchema.safeParse(Object.fromEntries(["code", "type", "value", "minOrderAmount", "maxDiscount", "usageLimit", "perUserLimit", "expiresAt"].map((k) => [k, String(form.get(k) ?? "")])));
-  if (!p.success) return { error: "Проверьте поля: код (латиница/цифры), значение числом." };
+  if (!p.success) return { error: "Maydonlarni tekshiring: kod (lotin harflari/raqamlar), qiymat raqam bilan." };
   const d = p.data;
-  if (Number(d.value) <= 0) return { error: "Значение скидки должно быть больше нуля." };
-  if (d.type === "PERCENT" && Number(d.value) > 100) return { error: "Процент не может быть больше 100." };
-  if (await prisma.coupon.findUnique({ where: { code: d.code } })) return { error: "Такой промокод уже существует." };
+  if (Number(d.value) <= 0) return { error: "Chegirma qiymati noldan katta boʻlishi kerak." };
+  if (d.type === "PERCENT" && Number(d.value) > 100) return { error: "Foiz 100 dan katta boʻlishi mumkin emas." };
+  if (await prisma.coupon.findUnique({ where: { code: d.code } })) return { error: "Bunday promokod allaqachon mavjud." };
   const expires = d.expiresAt ? new Date(`${d.expiresAt}T23:59:59+05:00`) : null;
-  if (expires && Number.isNaN(expires.getTime())) return { error: "Некорректная дата окончания." };
+  if (expires && Number.isNaN(expires.getTime())) return { error: "Tugash sanasi notoʻgʻri." };
   await prisma.coupon.create({
     data: {
       code: d.code,
@@ -68,7 +68,7 @@ export async function createCouponAction(_prev: FormState, form: FormData): Prom
   });
   await prisma.auditLog.create({ data: { actorId: admin.id, action: "coupon.create", entity: "Coupon", entityId: d.code } });
   revalidatePath("/admin/coupons");
-  return { ok: `Промокод ${d.code} создан.` };
+  return { ok: `Promokod ${d.code} yaratildi.` };
 }
 
 export async function toggleCouponAction(form: FormData) {
@@ -94,16 +94,16 @@ export async function saveSettingsAction(_prev: FormState, form: FormData): Prom
   const admin = await requireAdmin("*");
   const phoneRaw = String(form.get("contactPhone") ?? "").trim();
   const phone = phoneRaw ? normalizeUzPhone(phoneRaw) : null;
-  if (phoneRaw && !phone) return { error: "Телефон: формат +998 XX XXX XX XX." };
+  if (phoneRaw && !phone) return { error: "Telefon: +998 XX XXX XX XX formatida." };
   const email = String(form.get("contactEmail") ?? "").trim();
-  if (email && !z.string().email().safeParse(email).success) return { error: "Некорректный email." };
+  if (email && !z.string().email().safeParse(email).success) return { error: "Email notoʻgʻri." };
   const url = (v: FormDataEntryValue | null) => {
     const s = String(v ?? "").trim();
     return s && /^https:\/\/[^\s]+$/.test(s) ? s : s ? null : "";
   };
   const instagram = url(form.get("instagram"));
   const telegram = url(form.get("telegram"));
-  if (instagram === null || telegram === null) return { error: "Ссылки на соцсети должны начинаться с https://" };
+  if (instagram === null || telegram === null) return { error: "Ijtimoiy tarmoq havolalari https:// bilan boshlanishi kerak" };
   const locales = form.getAll("enabledLocales").map(String).filter((l): l is "uz" | "ru" | "en" => ["uz", "ru", "en"].includes(l));
   if (!locales.includes("uz")) locales.unshift("uz"); // основной язык выключить нельзя
 
@@ -123,7 +123,7 @@ export async function saveSettingsAction(_prev: FormState, form: FormData): Prom
   });
   await prisma.auditLog.create({ data: { actorId: admin.id, action: "settings.update", entity: "StoreSettings", entityId: "default" } });
   revalidatePath("/", "layout");
-  return { ok: "Настройки сохранены." };
+  return { ok: "Sozlamalar saqlandi." };
 }
 
 export async function togglePaymentAction(form: FormData) {
@@ -148,7 +148,7 @@ const deliverySchema = z.object({
 export async function createDeliveryAction(_prev: FormState, form: FormData): Promise<FormState> {
   await requireAdmin("*");
   const p = deliverySchema.safeParse(Object.fromEntries(["type", "name_uz", "name_ru", "name_en", "price", "freeFrom", "etaDays"].map((k) => [k, String(form.get(k) ?? "")])));
-  if (!p.success) return { error: "Заполните название (UZ и RU) и цену числом (0 — бесплатно)." };
+  if (!p.success) return { error: "Nomini (UZ va RU) va narxini raqam bilan kiriting (0 — bepul)." };
   const d = p.data;
   const count = await prisma.deliveryMethod.count();
   await prisma.deliveryMethod.create({
@@ -162,7 +162,7 @@ export async function createDeliveryAction(_prev: FormState, form: FormData): Pr
     },
   });
   revalidatePath("/admin/settings");
-  return { ok: "Способ доставки добавлен." };
+  return { ok: "Yetkazib berish usuli qoʻshildi." };
 }
 
 export async function toggleDeliveryAction(form: FormData) {

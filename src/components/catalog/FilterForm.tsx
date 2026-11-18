@@ -53,7 +53,7 @@ export function FilterForm({
             {facets.sizes.map((s) => (
               <label key={s} className="relative cursor-pointer">
                 <input type="checkbox" name="size" value={s} defaultChecked={filters.sizes.includes(s)} onChange={autoSubmit} className="peer sr-only" />
-                <span className="flex h-10 min-w-12 items-center justify-center border border-line px-3 text-xs font-medium transition-colors peer-checked:border-wine peer-checked:bg-wine peer-checked:text-cream peer-focus-visible:outline peer-focus-visible:outline-1">
+                <span className="flex h-10 min-w-12 items-center justify-center border border-line px-3 text-xs font-medium transition-colors hover:border-muted peer-checked:border-wine peer-checked:bg-wine peer-checked:text-cream peer-focus-visible:outline peer-focus-visible:outline-1">
                   {s}
                 </span>
               </label>
@@ -88,7 +88,7 @@ export function FilterForm({
               defaultValue={filters.minPrice}
               onBlur={autoSubmit}
               aria-label={`${t("price")} ${t("from")}`}
-              className="price h-11 w-full border border-line bg-paper px-3 text-sm focus:border-ink focus:outline-none"
+              className="field field-sm price"
             />
             <span className="text-muted">—</span>
             <input
@@ -97,7 +97,7 @@ export function FilterForm({
               defaultValue={filters.maxPrice}
               onBlur={autoSubmit}
               aria-label={`${t("price")} ${t("to")}`}
-              className="price h-11 w-full border border-line bg-paper px-3 text-sm focus:border-ink focus:outline-none"
+              className="field field-sm price"
             />
           </div>
         </Group>

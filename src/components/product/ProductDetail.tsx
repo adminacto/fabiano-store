@@ -81,7 +81,7 @@ export function ProductDetail({ product, requestedColor, tryOn }: { product: Pro
 
       <div className="lg:sticky lg:top-28 lg:h-fit lg:max-w-[30rem]">
         <div className="flex items-center gap-2">
-          {product.isNew && <span className="eyebrow bg-paper px-2 py-1 text-[0.625rem]">{t("new")}</span>}
+          {product.isNew && <span className="eyebrow bg-cream px-2 py-1 text-[0.625rem] text-wine-deep">{t("new")}</span>}
           {off && <span className="eyebrow bg-wine px-2 py-1 text-[0.625rem] text-cream">−{off}%</span>}
         </div>
         <h1 className="mt-3 text-4xl leading-tight md:text-5xl">{product.name}</h1>
@@ -137,7 +137,7 @@ export function ProductDetail({ product, requestedColor, tryOn }: { product: Pro
                       onChange={() => { setSize(s); setNeedSize(false); setMessage(null); }}
                       className="peer sr-only"
                     />
-                    <span className="flex h-12 items-center justify-center border border-line text-sm font-medium transition-colors peer-checked:border-wine peer-checked:bg-wine peer-checked:text-cream peer-disabled:text-muted/50 peer-disabled:line-through peer-focus-visible:outline peer-focus-visible:outline-1">
+                    <span className="flex h-12 items-center justify-center border border-line text-sm font-medium transition-colors hover:border-muted peer-checked:border-wine peer-checked:bg-wine peer-checked:text-cream peer-disabled:text-muted/50 peer-disabled:line-through peer-focus-visible:outline peer-focus-visible:outline-1">
                       {s}
                     </span>
                   </label>

@@ -46,7 +46,7 @@ export function CheckoutForm({
   }, [cart.totals, delivery]);
 
   const err = state?.error ? (t.has(`errors.${state.error}`) ? t(`errors.${state.error}` as "errors.GENERIC") : t("errors.GENERIC")) : null;
-  const input = "mt-1.5 h-12 w-full border border-line bg-paper px-4 text-[0.9375rem] focus:border-wine focus:outline-none";
+  const input = "field mt-1.5";
   const label = "text-xs font-medium text-muted";
 
   return (
@@ -79,7 +79,7 @@ export function CheckoutForm({
             <label><span className={label}>{t("apartment")}</span><input name="apartment" className={input} /></label>
             <label className="sm:col-span-2">
               <span className={label}>{t("comment")}</span>
-              <textarea name="comment" rows={3} maxLength={500} placeholder={t("commentPlaceholder")} className="mt-1.5 w-full border border-line bg-paper px-4 py-3 text-[0.9375rem] focus:border-wine focus:outline-none" />
+              <textarea name="comment" rows={3} maxLength={500} placeholder={t("commentPlaceholder")} className="field mt-1.5" />
             </label>
           </div>
         </fieldset>
@@ -88,7 +88,7 @@ export function CheckoutForm({
           <legend className="text-3xl">{t("deliveryMethod")}</legend>
           <div className="mt-6 space-y-3">
             {available.map((d) => (
-              <label key={d.id} className="flex cursor-pointer items-center gap-4 border border-line bg-paper p-4 has-[:checked]:border-wine">
+              <label key={d.id} className="flex cursor-pointer items-center gap-4 border border-line bg-paper p-4 transition-[border-color,box-shadow] duration-200 hover:border-[#d8c4b2] has-[:checked]:border-wine has-[:checked]:shadow-[0_0_0_3px_rgb(92_20_34/0.1)]">
                 <input type="radio" name="deliveryMethodId" value={d.id} checked={delivery?.id === d.id} onChange={() => setDeliveryId(d.id)} className="h-4 w-4 accent-[var(--color-wine)]" />
                 <span className="flex-1">
                   <span className="block text-sm font-medium">{d.name}</span>
@@ -104,7 +104,7 @@ export function CheckoutForm({
           <legend className="text-3xl">{t("paymentMethod")}</legend>
           <div className="mt-6 space-y-3">
             {codEnabled && (
-              <label className="flex cursor-pointer items-center gap-4 border border-line bg-paper p-4 has-[:checked]:border-wine">
+              <label className="flex cursor-pointer items-center gap-4 border border-line bg-paper p-4 transition-[border-color,box-shadow] duration-200 hover:border-[#d8c4b2] has-[:checked]:border-wine has-[:checked]:shadow-[0_0_0_3px_rgb(92_20_34/0.1)]">
                 <input type="radio" name="paymentProvider" value="CASH_ON_DELIVERY" defaultChecked className="h-4 w-4 accent-[var(--color-wine)]" />
                 <span>
                   <span className="block text-sm font-medium">{t("cod")}</span>
@@ -116,7 +116,7 @@ export function CheckoutForm({
         </fieldset>
       </div>
 
-      <aside className="h-fit bg-paper p-6 md:p-8 lg:sticky lg:top-28">
+      <aside className="card h-fit p-6 md:p-8 lg:sticky lg:top-28">
         <h2 className="eyebrow font-sans">{t("summary")}</h2>
         <ul className="mt-6 space-y-4">
           {cart.lines.map((l) => (

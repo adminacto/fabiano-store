@@ -53,7 +53,7 @@ export function Field({
         inputMode={inputMode}
         defaultValue={defaultValue ?? undefined}
         placeholder={placeholder}
-        className="mt-1.5 h-12 w-full border border-line bg-paper px-4 text-[0.9375rem] transition-colors focus:border-wine focus:outline-none"
+        className="field mt-1.5"
       />
       {hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
     </label>
