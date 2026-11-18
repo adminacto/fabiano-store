@@ -55,10 +55,15 @@ export default async function AccountPage({ params, searchParams }: Props) {
       <main id="main" className="page-x mx-auto max-w-[var(--container-page)] py-12 md:py-16">
         <div className="flex flex-wrap items-end justify-between gap-6 border-b border-line pb-8">
           <h1 className="text-5xl md:text-6xl">{t("greeting", { name: user.firstName ?? "" })}</h1>
-          <form action={logoutAction}>
-            <input type="hidden" name="locale" value={locale} />
-            <button type="submit" className="eyebrow link-underline pb-1">{t("logout")}</button>
-          </form>
+          <div className="flex items-center gap-6">
+            {user.can("admin:access") && (
+              <a href="/admin" className="btn btn-primary h-10">{(await getTranslations("nav"))("admin")}</a>
+            )}
+            <form action={logoutAction}>
+              <input type="hidden" name="locale" value={locale} />
+              <button type="submit" className="eyebrow link-underline pb-1">{t("logout")}</button>
+            </form>
+          </div>
         </div>
 
         <div className="grid gap-14 pt-10 lg:grid-cols-[1fr_22rem] lg:gap-20">

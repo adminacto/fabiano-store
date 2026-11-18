@@ -30,6 +30,7 @@
 
 @layer base {
   html {
+    scrollbar-gutter: stable;
     background: var(--color-canvas);
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;

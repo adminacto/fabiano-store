@@ -9,6 +9,8 @@ export const routing = defineRouting({
   locales,
   defaultLocale: "uz",
   localePrefix: "always",
+  // Сайт всегда открывается на узбекском; язык меняется только переключателем (UZ/RU/EN)
+  localeDetection: false,
 });
 
 export const { Link, redirect, usePathname, useRouter, getPathname } = createNavigation(routing);

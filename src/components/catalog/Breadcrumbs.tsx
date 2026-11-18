@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 
 export interface Crumb {
@@ -7,7 +8,8 @@ export interface Crumb {
 }
 
 /** Хлебные крошки + JSON-LD BreadcrumbList для поисковиков. */
-export function Breadcrumbs({ items, locale, className = "" }: { items: Crumb[]; locale?: string; className?: string }) {
+export async function Breadcrumbs({ items, locale, className = "" }: { items: Crumb[]; locale?: string; className?: string }) {
+  const t = await getTranslations("nav");
   const base = (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL) ?? "";
   const jsonLd = {
     "@context": "https://schema.org",
@@ -20,7 +22,7 @@ export function Breadcrumbs({ items, locale, className = "" }: { items: Crumb[];
     })),
   };
   return (
-    <nav aria-label="Breadcrumb" className={className}>
+    <nav aria-label={t("breadcrumbs")} className={className}>
       <ol className="flex flex-wrap items-center gap-x-2 text-xs text-muted">
         {items.map((c, i) => (
           <li key={i} className="flex items-center gap-2">

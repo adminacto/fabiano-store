@@ -23,7 +23,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: A
 
   return (
     <>
-      <SiteHeader overlay />
+      <SiteHeader overlay hideLogoWhileTransparent={!hero?.imageUrl} />
       <main id="main">
         <Hero data={hero} />
 

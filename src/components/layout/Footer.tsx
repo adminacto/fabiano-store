@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { NewsletterForm } from "@/components/home/NewsletterForm";
 import { Logo } from "./Logo";
+import { formatUzPhone } from "@/lib/phone";
 
 interface FooterProps {
   socials?: { instagram?: string; telegram?: string } | null;
@@ -47,7 +48,7 @@ export async function Footer({ socials, contactPhone, contactEmail }: FooterProp
               <li><a href={socials.telegram} target="_blank" rel="noopener noreferrer" className="link-underline">Telegram</a></li>
             )}
             {contactPhone && (
-              <li><a href={`tel:${contactPhone}`} className="link-underline price">{contactPhone}</a></li>
+              <li><a href={`tel:${contactPhone}`} className="link-underline price whitespace-nowrap">{formatUzPhone(contactPhone)}</a></li>
             )}
             {contactEmail && (
               <li><a href={`mailto:${contactEmail}`} className="link-underline">{contactEmail}</a></li>
