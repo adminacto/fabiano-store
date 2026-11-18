@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { serif, sans } from "@/lib/fonts";
+import { ErrorListener } from "@/components/ui/ErrorListener";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +14,10 @@ export const viewport: Viewport = { themeColor: "#3A0A13" };
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="uz" className={`${serif.variable} ${sans.variable}`}>
-      <body className="min-h-svh bg-canvas text-ink">{children}</body>
+      <body className="min-h-svh bg-canvas text-ink">
+        <ErrorListener />
+        {children}
+      </body>
     </html>
   );
 }

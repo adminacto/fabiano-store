@@ -4,6 +4,7 @@ import { serif, sans } from "@/lib/fonts";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { isLocale, locales, assertLocale } from "@/i18n/routing";
+import { ErrorListener } from "@/components/ui/ErrorListener";
 import "@/styles/globals.css";
 
 export function generateStaticParams() {
@@ -50,6 +51,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={`${serif.variable} ${sans.variable}`}>
       <body className="min-h-svh bg-canvas text-ink">
+        <ErrorListener />
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
         </NextIntlClientProvider>

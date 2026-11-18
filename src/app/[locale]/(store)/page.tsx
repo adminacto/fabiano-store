@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Hero } from "@/components/home/Hero";
+import { GenderTiles } from "@/components/home/GenderTiles";
 import { ProductRail, ProductRailSkeleton } from "@/components/home/ProductRail";
 import { FeaturedCollections } from "@/components/home/FeaturedCollections";
 import { BrandSection } from "@/components/home/BrandSection";
@@ -26,6 +27,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: A
       <SiteHeader overlay hideLogoWhileTransparent={!hero?.imageUrl} />
       <main id="main">
         <Hero data={hero} />
+        <GenderTiles />
 
         <Suspense fallback={<ProductRailSkeleton />}>
           <NewArrivals locale={locale} title={t("newArrivals")} viewAll={t("viewAll")} empty={t("emptyProducts")} />
